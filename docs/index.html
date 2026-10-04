@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AcrossMark — AI 로고 · 상품 · 홈 비주얼</title>
+    <meta
+      name="description"
+      content="브라우저 Side Panel에서 로고, 상품 배너, 홈 이미지를 AI로 만드는 AcrossMark."
+    />
+    <link rel="canonical" href="https://acrossmark.acrosstool.com/" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #0c1210;
+        --fog: #e8f0ec;
+        --mist: #b7c9c0;
+        --teal: #1fa37a;
+        --teal-deep: #0d6b4f;
+        --lime: #c8f07a;
+        --panel: rgba(12, 18, 16, 0.55);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--fog);
+        font-family: Manrope, sans-serif;
+        background: var(--ink);
+        overflow-x: hidden;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .hero {
+        position: relative;
+        min-height: 100vh;
+        display: grid;
+        align-items: end;
+        padding: clamp(1.25rem, 3vw, 2.5rem);
+        isolation: isolate;
+      }
+
+      .hero-visual {
+        position: absolute;
+        inset: 0;
+        z-index: -2;
+        background:
+          radial-gradient(ellipse 70% 55% at 78% 28%, rgba(31, 163, 122, 0.45), transparent 60%),
+          radial-gradient(ellipse 50% 40% at 18% 80%, rgba(200, 240, 122, 0.18), transparent 55%),
+          linear-gradient(160deg, #07110d 0%, #10241c 42%, #0a1511 100%);
+        overflow: hidden;
+      }
+
+      .hero-visual::before {
+        content: "";
+        position: absolute;
+        inset: -20%;
+        background:
+          repeating-linear-gradient(
+            -18deg,
+            transparent 0 22px,
+            rgba(232, 240, 236, 0.03) 22px 23px
+          );
+        animation: drift 28s linear infinite;
+      }
+
+      .orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(2px);
+        opacity: 0.9;
+      }
+
+      .orb-a {
+        width: min(48vw, 420px);
+        height: min(48vw, 420px);
+        right: 8%;
+        top: 12%;
+        background: conic-gradient(from 210deg, var(--teal), var(--lime), #245c4a, var(--teal));
+        animation: spin 22s linear infinite, pulse 6s ease-in-out infinite;
+        mask: radial-gradient(circle at 50% 50%, transparent 34%, #000 35%);
+      }
+
+      .orb-b {
+        width: min(28vw, 240px);
+        height: min(28vw, 240px);
+        right: 26%;
+        top: 38%;
+        background: linear-gradient(135deg, rgba(200, 240, 122, 0.85), rgba(31, 163, 122, 0.2));
+        animation: float 8s ease-in-out infinite;
+      }
+
+      .hero-content {
+        max-width: 42rem;
+        padding-bottom: clamp(2rem, 8vh, 5rem);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.7rem;
+        margin: 0 0 1.4rem;
+        font-size: clamp(2.4rem, 7vw, 4.6rem);
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        line-height: 0.95;
+        opacity: 0;
+        transform: translateY(18px);
+        animation: rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.1s forwards;
+      }
+
+      .brand-mark {
+        width: 0.72em;
+        height: 0.72em;
+        border-radius: 22%;
+        background:
+          linear-gradient(135deg, var(--lime), var(--teal) 55%, var(--teal-deep));
+        box-shadow: 0 0 0 3px rgba(200, 240, 122, 0.15);
+        flex-shrink: 0;
+      }
+
+      .headline {
+        margin: 0 0 1rem;
+        font-family: "Instrument Serif", Georgia, serif;
+        font-size: clamp(1.7rem, 4.4vw, 2.75rem);
+        font-weight: 400;
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        max-width: 16ch;
+        opacity: 0;
+        transform: translateY(18px);
+        animation: rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.25s forwards;
+      }
+
+      .headline em {
+        font-style: italic;
+        color: var(--lime);
+      }
+
+      .lede {
+        margin: 0 0 1.75rem;
+        max-width: 34ch;
+        color: var(--mist);
+        font-size: clamp(1rem, 2.2vw, 1.15rem);
+        line-height: 1.55;
+        opacity: 0;
+        transform: translateY(18px);
+        animation: rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.4s forwards;
+      }
+
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        opacity: 0;
+        transform: translateY(18px);
+        animation: rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.55s forwards;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 2.9rem;
+        padding: 0.7rem 1.25rem;
+        border-radius: 999px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .btn-primary {
+        background: var(--lime);
+        color: var(--ink);
+      }
+
+      .btn-primary:hover {
+        background: #d8f79a;
+      }
+
+      .btn-ghost {
+        border: 1px solid rgba(232, 240, 236, 0.28);
+        background: var(--panel);
+        backdrop-filter: blur(8px);
+      }
+
+      .btn-ghost:hover {
+        border-color: rgba(200, 240, 122, 0.55);
+      }
+
+      .section {
+        padding: clamp(3.5rem, 9vw, 6.5rem) clamp(1.25rem, 3vw, 2.5rem);
+        border-top: 1px solid rgba(232, 240, 236, 0.08);
+      }
+
+      .section-inner {
+        max-width: 68rem;
+        margin: 0 auto;
+      }
+
+      .section h2 {
+        margin: 0 0 0.75rem;
+        font-family: "Instrument Serif", Georgia, serif;
+        font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+        font-weight: 400;
+        letter-spacing: -0.02em;
+      }
+
+      .section p.support {
+        margin: 0 0 2rem;
+        max-width: 40ch;
+        color: var(--mist);
+        line-height: 1.55;
+      }
+
+      .modes {
+        display: grid;
+        gap: 1.5rem;
+      }
+
+      @media (min-width: 800px) {
+        .modes {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 2rem;
+        }
+      }
+
+      .mode h3 {
+        margin: 0 0 0.45rem;
+        font-size: 1.05rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .mode p {
+        margin: 0;
+        color: var(--mist);
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+
+      .mode-index {
+        display: block;
+        margin-bottom: 0.65rem;
+        color: var(--teal);
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .steps {
+        display: grid;
+        gap: 1.25rem;
+        counter-reset: step;
+      }
+
+      .step {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.9rem;
+        align-items: start;
+      }
+
+      .step::before {
+        counter-increment: step;
+        content: counter(step);
+        width: 1.8rem;
+        height: 1.8rem;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: rgba(31, 163, 122, 0.2);
+        color: var(--lime);
+        font-size: 0.85rem;
+        font-weight: 700;
+      }
+
+      .step strong {
+        display: block;
+        margin-bottom: 0.2rem;
+      }
+
+      .step span {
+        color: var(--mist);
+        font-size: 0.95rem;
+        line-height: 1.45;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.88em;
+        color: var(--lime);
+      }
+
+      footer {
+        padding: 1.5rem clamp(1.25rem, 3vw, 2.5rem) 2.5rem;
+        color: rgba(183, 201, 192, 0.7);
+        font-size: 0.85rem;
+      }
+
+      footer .section-inner {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.5rem;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      footer a:hover {
+        color: var(--fog);
+      }
+
+      @keyframes rise {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.75;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-18px);
+        }
+      }
+
+      @keyframes drift {
+        to {
+          transform: translate3d(-40px, 20px, 0);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
+          transition: none !important;
+        }
+
+        .brand,
+        .headline,
+        .lede,
+        .cta-row {
+          opacity: 1;
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <div class="hero-visual" aria-hidden="true">
+        <div class="orb orb-a"></div>
+        <div class="orb orb-b"></div>
+      </div>
+      <div class="hero-content">
+        <h1 class="brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          AcrossMark
+        </h1>
+        <p class="headline">브라우저 옆에서 만드는 <em>AI 비주얼</em></p>
+        <p class="lede">
+          로고, 상품 배너, 홈 이미지를 Chrome Side Panel에서 바로 생성하세요.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#install">Chrome에 설치하기</a>
+          <a class="btn btn-ghost" href="#modes">기능 보기</a>
+        </div>
+      </div>
+    </header>
+
+    <section class="section" id="modes">
+      <div class="section-inner">
+        <h2>세 가지 생성 모드</h2>
+        <p class="support">최소 입력만으로 모드별 전문 프롬프트를 자동 합성합니다.</p>
+        <div class="modes">
+          <article class="mode">
+            <span class="mode-index">01</span>
+            <h3>로고</h3>
+            <p>아이콘, 로고+글씨, 워드마크. 형태와 컬러 테마까지 맞춰 후보를 뽑습니다.</p>
+          </article>
+          <article class="mode">
+            <span class="mode-index">02</span>
+            <h3>상품 배너</h3>
+            <p>상품 강조, 한 줄 카피, 포인트 문구로 판매용 비주얼을 만듭니다.</p>
+          </article>
+          <article class="mode">
+            <span class="mode-index">03</span>
+            <h3>홈 / 배너</h3>
+            <p>새로 생성하거나, 무료 라이선스 이미지를 올려 재해석 변환합니다.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="install">
+      <div class="section-inner">
+        <h2>설치 방법</h2>
+        <p class="support">Chrome Web Store 등록 전에도 로컬로 바로 쓸 수 있습니다.</p>
+        <div class="steps">
+          <div class="step">
+            <div>
+              <strong>저장소에서 빌드</strong>
+              <span><code>npm install && npm run build</code> 후 <code>dist</code> 폴더를 준비합니다.</span>
+            </div>
+          </div>
+          <div class="step">
+            <div>
+              <strong>Chrome에 로드</strong>
+              <span><code>chrome://extensions</code> → 개발자 모드 → Load unpacked → <code>dist</code> 선택</span>
+            </div>
+          </div>
+          <div class="step">
+            <div>
+              <strong>API 키 등록</strong>
+              <span>Side Panel 설정에서 OpenAI 또는 Google API 키를 넣으면 바로 생성할 수 있습니다.</span>
+            </div>
+          </div>
+        </div>
+        <div class="cta-row" style="margin-top: 2rem">
+          <a
+            class="btn btn-primary"
+            href="https://github.com/SHIN1-IL/acrossmark-"
+            rel="noopener noreferrer"
+            target="_blank"
+            >GitHub에서 받기</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="section-inner">
+        <span>AcrossMark · AcrossTool</span>
+        <a href="https://acrosstool.com" rel="noopener noreferrer" target="_blank"
+          >acrosstool.com</a
+        >
+      </div>
+    </footer>
+  </body>
+</html>
