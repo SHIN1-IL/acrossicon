@@ -6,8 +6,10 @@ import {
   normalizeLocale,
 } from '@/types';
 
-const SETTINGS_KEY = 'acrossmark_settings';
-const HISTORY_KEY = 'acrossmark_history';
+const SETTINGS_KEY = 'acrossicon_settings';
+const HISTORY_KEY = 'acrossicon_history';
+const LEGACY_SETTINGS_KEY = 'acrossmark_settings';
+const LEGACY_HISTORY_KEY = 'acrossmark_history';
 const MAX_HISTORY = 12;
 
 function isExtensionStorageAvailable(): boolean {
@@ -36,6 +38,14 @@ async function setLocal<T>(key: string, value: T): Promise<void> {
   await chrome.storage.local.set({ [key]: value });
 }
 
+async function removeLocal(key: string): Promise<void> {
+  if (!isExtensionStorageAvailable()) {
+    localStorage.removeItem(key);
+    return;
+  }
+  await chrome.storage.local.remove(key);
+}
+
 /** Mask API key for display (keep first 3 + last 4 chars). */
 export function maskApiKey(apiKey: string): string {
   if (!apiKey) return '';
@@ -44,7 +54,22 @@ export function maskApiKey(apiKey: string): string {
 }
 
 export async function loadSettings(): Promise<AppSettings> {
-  const stored = await getLocal<Partial<AppSettings>>(SETTINGS_KEY, {});
+  let stored = await getLocal<Partial<AppSettings>>(SETTINGS_KEY, {});
+  if (!stored.apiKey && !stored.licenseKey) {
+    const legacy = await getLocal<Partial<AppSettings>>(LEGACY_SETTINGS_KEY, {});
+    if (Object.keys(legacy).length > 0) {
+      stored = legacy;
+      await setLocal(SETTINGS_KEY, {
+        ...DEFAULT_SETTINGS,
+        ...legacy,
+        imageSize: normalizeImageSize(legacy.imageSize),
+        locale: normalizeLocale(legacy.locale),
+        licenseKey: (legacy.licenseKey || '').trim().toUpperCase(),
+        apiBaseUrl: (legacy.apiBaseUrl || '').trim(),
+      });
+      await removeLocal(LEGACY_SETTINGS_KEY);
+    }
+  }
   return {
     ...DEFAULT_SETTINGS,
     ...stored,
@@ -60,7 +85,16 @@ export async function saveSettings(settings: AppSettings): Promise<void> {
 }
 
 export async function loadHistory(): Promise<GeneratedLogo[]> {
-  return getLocal<GeneratedLogo[]>(HISTORY_KEY, []);
+  let items = await getLocal<GeneratedLogo[]>(HISTORY_KEY, []);
+  if (items.length === 0) {
+    const legacy = await getLocal<GeneratedLogo[]>(LEGACY_HISTORY_KEY, []);
+    if (legacy.length > 0) {
+      items = legacy;
+      await setLocal(HISTORY_KEY, legacy);
+      await removeLocal(LEGACY_HISTORY_KEY);
+    }
+  }
+  return items;
 }
 
 export async function prependHistory(items: GeneratedLogo[]): Promise<GeneratedLogo[]> {
