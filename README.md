@@ -1,13 +1,21 @@
-# AcrossMark AI
+# AcrossIcon AI
 
-Chrome Extension (Manifest V3) Side Panel app that generates professional logo candidates from a brand name, style keywords, and color theme.
+Chrome Extension (Manifest V3) Side Panel — AI logos, product banners, and hero images.
 
 ## Stack
 
 - Chrome Extension Manifest V3 + Side Panel API
 - Vite + React + TypeScript + Tailwind CSS
-- Lucide React
-- `chrome.storage.local` for API keys & history
+- FastAPI backend: license quota + ops console (`backend/ops`)
+
+## Plans
+
+| Plan | Daily | Monthly | Price (KRW) |
+|------|-------|---------|-------------|
+| Standard | 10 | 60 | 14,900 |
+| Premium | 20 | 120 | 29,900 |
+
+See `docs/OPERATIONS.md` for admin console and Render deploy.
 
 ## Setup
 
@@ -23,7 +31,7 @@ npm run build
 3. Click **Load unpacked**
 4. Select the `dist` folder
 
-Click the extension icon to open the Side Panel. Open **Settings** (gear) and paste your OpenAI or Google API key.
+Settings: API Key + **License key** (+ optional license server URL).
 
 ## Dev
 
@@ -31,7 +39,13 @@ Click the extension icon to open the Side Panel. Open **Settings** (gear) and pa
 npm run dev
 ```
 
-Note: Side Panel / `chrome.*` APIs require loading the built extension. Use `npm run build` for full extension testing.
+Backend (local):
+
+```bash
+cd backend && pip install -r requirements.txt
+ADMIN_TOKEN=dev uvicorn main:app --reload --port 8000
+# Ops: http://127.0.0.1:8000/ops/
+```
 
 ## Scripts
 

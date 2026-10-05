@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>AcrossIcon 운영 콘솔</title>
+  <link rel="stylesheet" href="styles.css?v=20261005" />
+</head>
+<body>
+  <h1>AcrossIcon 운영 콘솔</h1>
+  <p class="sub">관리자 전용 · 검색에 올리지 마세요</p>
+
+  <section class="card" id="loginCard">
+    <form id="loginForm">
+      <label for="token">ADMIN_TOKEN</label>
+      <div class="row">
+        <input type="password" id="token" name="token" autocomplete="current-password" placeholder="Render Environment의 ADMIN_TOKEN" />
+        <button type="submit" id="loginBtn">입장</button>
+      </div>
+    </form>
+    <p id="loginErr" class="err" hidden></p>
+  </section>
+
+  <div id="desk" hidden>
+    <section class="card">
+      <h2>빠른 발급</h2>
+      <div class="issue-cols">
+        <div class="col col-standard">
+          <h3>스탠다드 · 14,900</h3>
+          <p class="plan-meta">일 10장 · 월 60장</p>
+          <button type="button" data-issue="standard-30">1개월 · 14,900</button>
+          <button type="button" data-issue="standard-180">6개월 · 74,500</button>
+          <button type="button" data-issue="standard-365">1년 · 149,000</button>
+          <button type="button" data-issue="family-standard">지인 30일</button>
+        </div>
+        <div class="col col-premium">
+          <h3>프리미엄 · 29,900</h3>
+          <p class="plan-meta">일 20장 · 월 120장</p>
+          <button type="button" class="btn-premium" data-issue="premium-30">1개월 · 29,900</button>
+          <button type="button" class="btn-premium" data-issue="premium-180">6개월 · 149,500</button>
+          <button type="button" class="btn-premium" data-issue="premium-365">1년 · 299,000</button>
+          <button type="button" class="btn-premium" data-issue="family-premium">지인 30일</button>
+        </div>
+      </div>
+      <label>메모 (업체명·전화) — 발급 시 같이 저장</label>
+      <input type="text" id="note" placeholder="예: ○○스튜디오 010-..." />
+      <p id="issueMsg" class="ok" hidden></p>
+      <label>고객 안내 카톡 (복사)</label>
+      <textarea id="customerMsg" rows="10" readonly></textarea>
+      <button type="button" id="copyMsgBtn" class="secondary">안내문 복사</button>
+    </section>
+
+    <section class="card">
+      <h2>라이선스</h2>
+      <button type="button" id="refreshBtn" class="secondary">새로고침</button>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>키</th>
+              <th>플랜</th>
+              <th>시작</th>
+              <th>만료</th>
+              <th>상태</th>
+              <th>오늘</th>
+              <th>이번달</th>
+              <th>메모</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+  <script src="app.js?v=20261005"></script>
+</body>
+</html>

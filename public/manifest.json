@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "AcrossMark AI",
-  "description": "Side Panel AI logo generator — brand name in, professional logo out.",
+  "name": "AcrossIcon AI",
+  "description": "Side Panel AI visual generator — logos, product banners, and hero images.",
   "version": "1.0.0",
   "icons": {
     "16": "icons/icon16.png",
@@ -9,7 +9,7 @@
     "128": "icons/icon128.png"
   },
   "action": {
-    "default_title": "Open AcrossMark AI",
+    "default_title": "Open AcrossIcon AI",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
@@ -27,6 +27,9 @@
   "host_permissions": [
     "https://api.openai.com/*",
     "https://*.blob.core.windows.net/*",
-    "https://generativelanguage.googleapis.com/*"
+    "https://generativelanguage.googleapis.com/*",
+    "http://127.0.0.1:8000/*",
+    "http://localhost:8000/*",
+    "https://*.onrender.com/*"
   ]
 }

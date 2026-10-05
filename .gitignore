@@ -4,3 +4,10 @@ dist
 *.local
 .env
 .env.*
+backend/.venv/
+backend/**/__pycache__/
+backend/*.db
+backend/**/*.db
+backend/data/
+backend/**/*.vault.json
+backend/.acrossicon_write_test

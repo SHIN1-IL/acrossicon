@@ -4,7 +4,10 @@ export type AiProvider = 'openai' | 'google';
 
 export type GenerationMode = 'logo' | 'product' | 'home';
 
-export type HomeSource = 'generate' | 'upload';
+export type ImageSource = 'generate' | 'upload';
+
+/** @deprecated Use ImageSource */
+export type HomeSource = ImageSource;
 
 export type TextPlacement = 'left' | 'right' | 'center' | 'none';
 
@@ -17,8 +20,13 @@ export type ColorTheme =
   | 'Earth Tone'
   | 'Custom';
 
-/** GPT Image standard sizes (legacy 1792 DALL·E sizes are remapped on load). */
-export type ImageSize = '1024x1024' | '1024x1536' | '1536x1024';
+/** GPT Image sizes (legacy 1792 DALL·E sizes are remapped on load). */
+export type ImageSize =
+  | '1024x1024'
+  | '1024x1536'
+  | '1536x1024'
+  /** Wide hero 16:9 — uses gpt-image-2 on OpenAI. */
+  | '2048x1152';
 
 export interface AppSettings {
   provider: AiProvider;
@@ -30,6 +38,10 @@ export interface AppSettings {
   /** UI language. Defaults to Korean. */
   locale: Locale;
   customColor?: string;
+  /** AcrossIcon subscription license key (XXXX-XXXX-XXXX). */
+  licenseKey: string;
+  /** License API base URL (Render / local). */
+  apiBaseUrl: string;
 }
 
 /** What to include in the mark. */
@@ -49,7 +61,10 @@ export interface CreatorFormValues {
   brandName: string;
   /** English prompt keywords (UI labels are localized separately). */
   keywords: string[];
+  /** @deprecated Kept for storage compat; style chips only in UI. */
   customKeyword: string;
+  /** Free-form requirements that must be reflected in the image prompt. */
+  requirements: string;
   colorTheme: ColorTheme;
   customColor: string;
   layout: LogoLayout;
@@ -59,10 +74,11 @@ export interface CreatorFormValues {
   productHeadline: string;
   productPoints: string;
   /** Home / hero fields */
-  homeSource: HomeSource;
   homeTitle: string;
   homeSubtitle: string;
   textPlacement: TextPlacement;
+  /** Shared: generate from scratch vs edit uploaded reference (all modes). */
+  imageSource: ImageSource;
   reinterpret: ReinterpretStrength;
   sourceImageDataUrl: string;
   sourceImageName: string;
@@ -90,17 +106,29 @@ export interface ToastMessage {
 export const DEFAULT_SETTINGS: AppSettings = {
   provider: 'openai',
   apiKey: '',
-  imageCount: 4,
+  imageCount: 1,
   imageSize: '1024x1024',
   promptVariation: true,
   locale: 'ko',
+  licenseKey: '',
+  apiBaseUrl: '',
 };
+
+export const IMAGE_COUNTS = [1, 2, 3, 4] as const;
+
+export const IMAGE_SIZES: ImageSize[] = [
+  '1024x1024',
+  '1024x1536',
+  '1536x1024',
+  '2048x1152',
+];
 
 export const INITIAL_FORM: CreatorFormValues = {
   mode: 'logo',
   brandName: '',
   keywords: ['Minimalist'],
   customKeyword: '',
+  requirements: '',
   colorTheme: 'Monochrome',
   customColor: '',
   layout: 'icon',
@@ -108,10 +136,10 @@ export const INITIAL_FORM: CreatorFormValues = {
   productName: '',
   productHeadline: '',
   productPoints: '',
-  homeSource: 'generate',
   homeTitle: '',
   homeSubtitle: '',
   textPlacement: 'left',
+  imageSource: 'generate',
   reinterpret: 'medium',
   sourceImageDataUrl: '',
   sourceImageName: '',
@@ -177,6 +205,9 @@ export function normalizeImageSize(size: string | undefined): ImageSize {
     case '1536x1024':
     case '1792x1024':
       return '1536x1024';
+    case '2048x1152':
+    case '1920x1080':
+      return '2048x1152';
     case '1024x1024':
     default:
       return '1024x1024';

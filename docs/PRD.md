@@ -2,7 +2,7 @@
 
 ## 1. 프로젝트 개요 (Overview)
 
-- **프로젝트명:** AcrossMark AI (개인용 AI 비주얼 생성 툴)
+- **프로젝트명:** AcrossIcon AI (개인용 AI 비주얼 생성 툴)
 - **형태:** Chrome Extension (Manifest V3, Side Panel 기반)
 - **목적:** 별도 디자인 툴/외주 없이, 브라우저 Side Panel에서 **로고 / 상품 배너 / 홈·배너 이미지**를 AI로 생성·변환·저장하는 개인 생산성 도구.
 
@@ -10,7 +10,8 @@
 
 - **작업 몰입도 유지:** 별도 웹사이트 이동 없이 브라우저 우측 Side Panel에서 즉시 작업.
 - **프롬프트 자동 최적화:** 최소 입력만으로 모드별 전문 프롬프트를 자동 합성.
-- **비용·구조 단순화:** 회원가입/백엔드 없이 `chrome.storage.local` 기반 API Key 등록으로 구동.
+- **비용·구조 단순화:** 고객은 라이선스 키 + (당분간) 본인 API Key로 사용. 한도는 백엔드에서 집계.
+- **판매 플랜:** 스탠다드(일 10 / 월 60) · 프리미엄(일 20 / 월 120). 체험 플랜 없음.
 - **라이선스 안전 사용:** 업로드 변환은 **무료/상업·개작 허용 라이선스 이미지**만 사용 (사용자 확인 필수).
 
 ## 3. 타깃 플랫폼 및 기술 스택 (Tech Stack)
@@ -24,9 +25,22 @@
 | AI 이미지 | OpenAI `gpt-image-1` (generate / edits), Google Imagen 3 (생성만) |
 | 유틸 | Lucide React, Canvas API (투명 배경 PNG 등) |
 | 권한 | `sidePanel`, `storage`, `downloads`, `unlimitedStorage` |
-| Host | `api.openai.com`, `*.blob.core.windows.net`, `generativelanguage.googleapis.com` |
+| Host | `api.openai.com`, `*.blob.core.windows.net`, `generativelanguage.googleapis.com`, 라이선스 API(Render/local) |
+| 백엔드 | FastAPI (`backend/`) — 라이선스·한도·운영 콘솔 `/ops` |
 
-> **참고:** DALL·E 3는 2026-05-12 종료. 현재 OpenAI 경로는 `gpt-image-1` 사용.
+> **참고:** DALL·E 3는 2026-05-12 종료. 현재 OpenAI 경로는 `gpt-image-1` (와이드는 `gpt-image-2`).
+
+## 4. 판매 플랜 (Billing)
+
+| 플랜 | 월 가격(권장) | 일 한도 | 월 한도 |
+|------|---------------|---------|---------|
+| 스탠다드 | 14,900원 | 10장 | 60장 |
+| 프리미엄 | 29,900원 | 20장 | 120장 |
+
+- 한도는 **이미지 장수** 기준 (생성 개수 설정만큼 차감)
+- 관리자 콘솔: `backend/ops` (ADMIN_TOKEN)
+- 키 발급: 1개월 / 6개월 / 1년 / 지인 30일
+- 체험 플랜 없음 (피드백 후 재검토)
 
 ## 4. 핵심 기능 요구사항 (Functional Requirements)
 
@@ -117,6 +131,8 @@ Professional vector graphic logo for brand named '{brand_name}', theme of '{keyw
 | 6 | 로고 구성/형태 옵션, 한·영 i18n | 완료 |
 | 7 | 상품 배너 + 홈/배너(생성·무료 이미지 변환) | 완료 |
 | 8 | Chrome `dist` 로드 실전 테스트 | 진행/유지보수 |
+| 9 | 판매 플랜(스탠다드/프리미엄) + 라이선스 API | 완료 |
+| 10 | 관리자 운영 콘솔 (`/ops`, AcrossIcon 다크/스카이) | 완료 |
 
 ## 7. 빌드 & 실행
 

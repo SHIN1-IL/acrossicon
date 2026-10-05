@@ -50,6 +50,8 @@ export async function loadSettings(): Promise<AppSettings> {
     ...stored,
     imageSize: normalizeImageSize(stored.imageSize),
     locale: normalizeLocale(stored.locale),
+    licenseKey: (stored.licenseKey || '').trim().toUpperCase(),
+    apiBaseUrl: (stored.apiBaseUrl || '').trim(),
   };
 }
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Eye, EyeOff, KeyRound, X } from 'lucide-react';
-import { AiProvider, AppSettings, ImageSize, Locale } from '@/types';
+import { AiProvider, AppSettings, Locale } from '@/types';
 import { maskApiKey } from '@/lib/storage';
 import { t } from '@/i18n';
 
@@ -134,43 +134,45 @@ export function SettingsPanel({ open, settings, onClose, onSave }: SettingsPanel
 
           <label className="block space-y-1.5">
             <span className="text-xs font-medium text-zinc-400">
-              {t(locale, 'settings.count')}
+              {t(locale, 'settings.licenseKey')}
             </span>
-            <select
-              value={draft.imageCount}
+            <input
+              type="text"
+              value={draft.licenseKey}
               onChange={(e) =>
-                setDraft((prev) => ({ ...prev, imageCount: Number(e.target.value) }))
+                setDraft((prev) => ({
+                  ...prev,
+                  licenseKey: e.target.value.trim().toUpperCase(),
+                }))
               }
-              className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm text-zinc-100 outline-none focus:border-sky-500/60"
-            >
-              {[1, 2, 3, 4].map((n) => (
-                <option key={n} value={n}>
-                  {t(locale, 'settings.countUnit', { n })}
-                </option>
-              ))}
-            </select>
+              placeholder={t(locale, 'settings.licenseKeyPlaceholder')}
+              autoComplete="off"
+              spellCheck={false}
+              className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 font-mono text-sm uppercase tracking-wide text-zinc-100 outline-none focus:border-sky-500/60"
+            />
+            <p className="text-[11px] leading-relaxed text-zinc-500">
+              {t(locale, 'settings.licenseHint')}
+            </p>
           </label>
 
           <label className="block space-y-1.5">
             <span className="text-xs font-medium text-zinc-400">
-              {t(locale, 'settings.size')}
+              {t(locale, 'settings.apiBaseUrl')}
             </span>
-            <select
-              value={draft.imageSize}
+            <input
+              type="url"
+              value={draft.apiBaseUrl}
               onChange={(e) =>
-                setDraft((prev) => ({ ...prev, imageSize: e.target.value as ImageSize }))
+                setDraft((prev) => ({ ...prev, apiBaseUrl: e.target.value.trim() }))
               }
-              className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm text-zinc-100 outline-none focus:border-sky-500/60"
-            >
-              <option value="1024x1024">{t(locale, 'settings.sizeSquare')}</option>
-              <option value="1024x1536">{t(locale, 'settings.sizePortrait')}</option>
-              <option value="1536x1024">{t(locale, 'settings.sizeLandscape')}</option>
-            </select>
-            {draft.provider === 'google' && (
-              <p className="text-[11px] text-zinc-500">
-                {t(locale, 'settings.googleSizeHint')}
-              </p>
-            )}
+              placeholder="http://127.0.0.1:8000"
+              autoComplete="off"
+              spellCheck={false}
+              className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 font-mono text-xs text-zinc-100 outline-none focus:border-sky-500/60"
+            />
+            <p className="text-[11px] leading-relaxed text-zinc-500">
+              {t(locale, 'settings.apiBaseUrlHint')}
+            </p>
           </label>
 
           <label className="flex cursor-pointer items-start justify-between gap-3 rounded-lg border border-surface-border bg-surface px-3 py-3">

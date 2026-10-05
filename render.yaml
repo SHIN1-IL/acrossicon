@@ -1,0 +1,21 @@
+# AcrossIcon API + 운영 콘솔 (Render)
+# New Web Service → rootDir: backend
+
+services:
+  - type: web
+    name: acrossicon-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ADMIN_TOKEN
+        sync: false
+      - key: DATABASE_PATH
+        value: /var/data/acrossicon.db
+      - key: LICENSE_VAULT_PATH
+        value: /var/data/licenses.vault.json
+    disk:
+      name: acrossicon-data
+      mountPath: /var/data
+      sizeGB: 1

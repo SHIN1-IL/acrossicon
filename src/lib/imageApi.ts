@@ -48,6 +48,11 @@ async function dataUrlToBlob(dataUrl: string): Promise<Blob> {
   return response.blob();
 }
 
+/** Wide hero sizes need gpt-image-2 flexible resolution. */
+function openAiModelForSize(size: ImageSize): string {
+  return size === '2048x1152' ? 'gpt-image-2' : 'gpt-image-1';
+}
+
 async function generateOpenAiImage(
   apiKey: string,
   prompt: string,
@@ -60,7 +65,7 @@ async function generateOpenAiImage(
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: 'gpt-image-1',
+      model: openAiModelForSize(size),
       prompt,
       n: 1,
       size,
@@ -97,14 +102,18 @@ async function editOpenAiImage(
   inputFidelity: 'high' | 'low' = 'low',
 ): Promise<{ url: string; revisedPrompt?: string }> {
   const blob = await dataUrlToBlob(sourceImageDataUrl);
+  const model = openAiModelForSize(size);
   const form = new FormData();
-  form.append('model', 'gpt-image-1');
+  form.append('model', model);
   form.append('prompt', prompt);
   form.append('n', '1');
   form.append('size', size);
   form.append('quality', 'medium');
   form.append('output_format', 'png');
-  form.append('input_fidelity', inputFidelity);
+  // gpt-image-2 always uses high input fidelity; omit the param.
+  if (model !== 'gpt-image-2') {
+    form.append('input_fidelity', inputFidelity);
+  }
   form.append('image', blob, 'source.png');
 
   const response = await fetch('https://api.openai.com/v1/images/edits', {
@@ -132,9 +141,23 @@ async function editOpenAiImage(
   return { url, revisedPrompt: image.revised_prompt };
 }
 
+function googleAspectRatio(size: ImageSize): string {
+  switch (size) {
+    case '1024x1536':
+      return '3:4';
+    case '1536x1024':
+      return '4:3';
+    case '2048x1152':
+      return '16:9';
+    default:
+      return '1:1';
+  }
+}
+
 async function generateGoogleImage(
   apiKey: string,
   prompt: string,
+  size: ImageSize = '1024x1024',
 ): Promise<{ url: string }> {
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${encodeURIComponent(apiKey)}`;
 
@@ -143,7 +166,7 @@ async function generateGoogleImage(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       instances: [{ prompt }],
-      parameters: { sampleCount: 1, aspectRatio: '1:1' },
+      parameters: { sampleCount: 1, aspectRatio: googleAspectRatio(size) },
     }),
   });
 
@@ -218,7 +241,7 @@ async function generateOne(
     };
   }
 
-  const result = await generateGoogleImage(apiKey, prompt);
+  const result = await generateGoogleImage(apiKey, prompt, size);
   return {
     id: `${Date.now()}-${index}-${crypto.randomUUID()}`,
     url: result.url,

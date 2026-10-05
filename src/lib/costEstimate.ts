@@ -4,6 +4,7 @@ const OPENAI_GPT_IMAGE_MEDIUM_USD: Record<ImageSize, number> = {
   '1024x1024': 0.04,
   '1024x1536': 0.06,
   '1536x1024': 0.06,
+  '2048x1152': 0.08,
 };
 
 const GOOGLE_IMAGEN_USD = 0.04;
@@ -44,7 +45,7 @@ export function estimateGenerationCost(
       unitUsd,
       totalUsd,
       label: `약 $${totalUsd.toFixed(2)}`,
-      note: `gpt-image-1 medium · ${modeLabel}${isUpload ? ' edit' : ''} · ${size} · $${unitUsd.toFixed(2)} × ${safeCount}`,
+      note: `${size === '2048x1152' ? 'gpt-image-2' : 'gpt-image-1'} medium · ${modeLabel}${isUpload ? ' edit' : ''} · ${size} · $${unitUsd.toFixed(2)} × ${safeCount}`,
     };
   }
 

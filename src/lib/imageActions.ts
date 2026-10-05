@@ -33,7 +33,7 @@ export async function downloadPng(
   suffix = '',
 ): Promise<void> {
   const tag = suffix ? `-${suffix}` : '';
-  const filename = `acrossmark-${sanitizeFilename(brandName)}${tag}-${Date.now()}.png`;
+  const filename = `acrossicon-${sanitizeFilename(brandName)}${tag}-${Date.now()}.png`;
 
   if (typeof chrome !== 'undefined' && chrome.downloads?.download) {
     await chrome.downloads.download({

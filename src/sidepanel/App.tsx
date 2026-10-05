@@ -55,8 +55,7 @@ export default function App() {
     document.documentElement.lang = locale === 'en' ? 'en' : 'ko';
   }, [locale]);
 
-  const isUploadEdit =
-    form.mode === 'home' && form.homeSource === 'upload';
+  const isUploadEdit = form.imageSource === 'upload';
 
   const costEstimate = useMemo(
     () =>
@@ -113,6 +112,18 @@ export default function App() {
     await saveSettings(next);
   };
 
+  const handleImageCountChange = async (count: number) => {
+    const next = { ...settings, imageCount: count };
+    setSettings(next);
+    await saveSettings(next);
+  };
+
+  const handleImageSizeChange = async (size: ImageSize) => {
+    const next = { ...settings, imageSize: size };
+    setSettings(next);
+    await saveSettings(next);
+  };
+
   const handleSuggestImageSize = async (size: ImageSize) => {
     const next = { ...settings, imageSize: size };
     setSettings(next);
@@ -126,13 +137,9 @@ export default function App() {
       return;
     }
 
-    if (form.mode === 'logo' && !form.brandName.trim()) {
-      push(t(locale, 'toast.needBrand'), 'error');
-      return;
-    }
-
     if (
       form.mode === 'product' &&
+      form.imageSource === 'generate' &&
       !form.productName.trim() &&
       !form.brandName.trim()
     ) {
@@ -140,7 +147,7 @@ export default function App() {
       return;
     }
 
-    if (form.mode === 'home' && form.homeSource === 'upload') {
+    if (form.imageSource === 'upload') {
       if (settings.provider !== 'openai') {
         push(t(locale, 'toast.needOpenAI'), 'error');
         setSettingsOpen(true);
@@ -264,8 +271,11 @@ export default function App() {
           hasApiKey={Boolean(settings.apiKey)}
           costLabel={costEstimate.label}
           imageCount={settings.imageCount}
+          imageSize={settings.imageSize}
           promptVariation={settings.promptVariation}
           onPromptVariationChange={handlePromptVariationChange}
+          onImageCountChange={handleImageCountChange}
+          onImageSizeChange={handleImageSizeChange}
           onSuggestImageSize={handleSuggestImageSize}
           onChange={setForm}
           onSubmit={handleRequestGenerate}

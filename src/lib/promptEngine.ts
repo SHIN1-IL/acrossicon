@@ -1,6 +1,7 @@
 import {
   ColorTheme,
   CreatorFormValues,
+  ImageSize,
   LogoLayout,
   LogoShape,
   ReinterpretStrength,
@@ -61,16 +62,27 @@ const VARIATION_BY_LAYOUT: Record<LogoLayout, readonly string[]> = {
   ],
 };
 
+/** Where to place user-provided hero copy inside the image. */
 const TEXT_PLACEMENT: Record<TextPlacement, string> = {
-  left: 'Reserve clean negative space on the LEFT third for website headline overlay. Keep key subjects on the right.',
+  left: 'Place the headline/subtitle block in the LEFT third. Keep the main visual subject on the right so text stays readable.',
   right:
-    'Reserve clean negative space on the RIGHT third for website headline overlay. Keep key subjects on the left.',
+    'Place the headline/subtitle block in the RIGHT third. Keep the main visual subject on the left so text stays readable.',
   center:
-    'Keep the center relatively open for centered headline overlay; place supporting visuals toward edges.',
-  none: 'No text overlay area required; fill the frame with a strong visual composition.',
+    'Place the headline/subtitle block in the CENTER with clear hierarchy. Keep supporting visuals toward the edges.',
+  none: 'Auto-choose the most readable optimal position for the headline/subtitle (usually left or center) with strong contrast against the background.',
 };
 
-const REINTERPRET: Record<ReinterpretStrength, string> = {
+/** Safe-area guidance when the user did NOT provide hero copy. */
+const TEXT_SAFE_AREA: Record<TextPlacement, string> = {
+  left: 'Keep the LEFT third relatively open for possible later HTML overlay; put the main subject on the right.',
+  right:
+    'Keep the RIGHT third relatively open for possible later HTML overlay; put the main subject on the left.',
+  center:
+    'Keep the center relatively open for possible later HTML overlay; put supporting visuals toward the edges.',
+  none: 'Fill the frame with a strong visual composition; no text safe-area required.',
+};
+
+const HOME_REINTERPRET: Record<ReinterpretStrength, string> = {
   light:
     'Keep the original subject recognizable; gently restyle lighting, color grade, and polish for a brand website hero.',
   medium:
@@ -78,6 +90,27 @@ const REINTERPRET: Record<ReinterpretStrength, string> = {
   strong:
     'Creatively reinterpret into a fresh original website hero inspired by the source, with new composition, palette, and atmosphere.',
 };
+
+const LOGO_REINTERPRET: Record<ReinterpretStrength, string> = {
+  light:
+    'Keep the uploaded mark recognizable; refine into a cleaner professional vector logo with modest polish.',
+  medium:
+    'Clearly restyle the uploaded reference into a modern vector logo while preserving the core symbol idea.',
+  strong:
+    'Creatively reinterpret the uploaded reference into a fresh original vector logo inspired by it, with new geometry and composition.',
+};
+
+const PRODUCT_REINTERPRET: Record<ReinterpretStrength, string> = {
+  light:
+    'Keep the uploaded product recognizable; gently improve lighting, background, and commercial polish for a product banner.',
+  medium:
+    'Restyle and recompose the uploaded product into a strong marketing banner while preserving the product identity.',
+  strong:
+    'Creatively reinterpret the uploaded product into a fresh commercial banner inspired by it, with new staging and atmosphere.',
+};
+
+const NO_TEXT_RULE =
+  'Absolutely no text, letters, numbers, words, logos-as-type, captions, or watermarks in the image.';
 
 export function resolveColorPalette(theme: ColorTheme, customColor?: string): string {
   if (theme === 'Custom') {
@@ -89,16 +122,34 @@ export function resolveColorPalette(theme: ColorTheme, customColor?: string): st
 export function collectKeywords(
   values: Pick<CreatorFormValues, 'keywords' | 'customKeyword'>,
 ): string {
-  const custom = values.customKeyword
-    .split(',')
-    .map((k) => k.trim())
-    .filter(Boolean);
-  const merged = [...new Set([...values.keywords, ...custom])];
+  const merged = [...new Set(values.keywords.filter(Boolean))];
   return merged.length > 0 ? merged.join(', ') : 'modern technology';
+}
+
+/** True when the user provided any copy that may appear in the image. */
+export function hasUserCopy(values: CreatorFormValues): boolean {
+  return Boolean(
+    values.brandName.trim() ||
+      values.productName.trim() ||
+      values.productHeadline.trim() ||
+      values.productPoints.trim() ||
+      values.homeTitle.trim() ||
+      values.homeSubtitle.trim(),
+  );
+}
+
+function requirementsDirective(values: CreatorFormValues): string {
+  const req = values.requirements.trim();
+  if (!req) return '';
+  return `MANDATORY user requirements (must follow exactly, do not ignore): ${req}`;
 }
 
 function layoutDirective(layout: LogoLayout, brandName: string): string {
   return LAYOUT_DIRECTIVES[layout].replaceAll('{brand}', brandName);
+}
+
+function appendParts(parts: Array<string | false | '' | undefined>): string {
+  return parts.filter(Boolean).join(' ');
 }
 
 export function buildLogoPrompt(values: CreatorFormValues, variationIndex = 0): string {
@@ -107,22 +158,34 @@ export function buildLogoPrompt(values: CreatorFormValues, variationIndex = 0): 
   const colorTheme = resolveColorPalette(values.colorTheme, values.customColor);
   const layout = values.layout ?? 'icon';
   const shape = values.shape ?? 'square';
+  const allowText = Boolean(brandName) && layout !== 'icon';
+  const effectiveLayout: LogoLayout = allowText ? layout : 'icon';
+  const isUpload = values.imageSource === 'upload';
 
-  const textRule =
-    layout === 'icon'
-      ? 'Absolutely no text, letters, numbers, or watermarks in the image.'
-      : 'Text must be sharp, correctly spelled, and not distorted.';
+  const brandPart = brandName
+    ? `Professional vector graphic logo for brand named '${brandName}'`
+    : 'Professional vector graphic logo mark for an untitled brand (no name lettering)';
 
-  const base = [
-    `Professional vector graphic logo for brand named '${brandName}', theme of '${keywords}', color palette '${colorTheme}'.`,
-    layoutDirective(layout, brandName),
+  const sourcePart = isUpload
+    ? `Transform the provided reference image into an original professional logo. ${LOGO_REINTERPRET[values.reinterpret]}`
+    : 'Create an original professional logo from scratch.';
+
+  const base = appendParts([
+    sourcePart,
+    `${brandPart}, theme of '${keywords}', color palette '${colorTheme}'.`,
+    allowText
+      ? layoutDirective(effectiveLayout, brandName)
+      : LAYOUT_DIRECTIVES.icon,
     SHAPE_DIRECTIVES[shape],
     'Flat minimalist design, modern tech aesthetic, clean geometric lines, high contrast, solid white background, vector emblem style, centered composition, no realistic photos, no complex gradients, ultra-sharp vector aesthetic, 4k resolution.',
-    textRule,
-  ].join(' ');
+    allowText
+      ? 'Text must be sharp, correctly spelled, and not distorted.'
+      : NO_TEXT_RULE,
+    requirementsDirective(values),
+  ]);
 
   if (variationIndex === 0) return base;
-  const variants = VARIATION_BY_LAYOUT[layout];
+  const variants = VARIATION_BY_LAYOUT[effectiveLayout];
   const directive = variants[(variationIndex - 1) % variants.length];
   return `${base} Variation ${variationIndex + 1}: ${directive}`;
 }
@@ -131,18 +194,74 @@ export function buildProductPrompt(
   values: CreatorFormValues,
   variationIndex = 0,
 ): string {
-  const brand = values.brandName.trim() || 'the brand';
-  const product = values.productName.trim() || brand;
+  const brand = values.brandName.trim();
+  const product = values.productName.trim();
   const headline = values.productHeadline.trim();
   const points = values.productPoints.trim();
   const keywords = collectKeywords(values);
   const colorTheme = resolveColorPalette(values.colorTheme, values.customColor);
+  const isUpload = values.imageSource === 'upload';
 
-  const textPart = headline
-    ? `Include short clean marketing text: headline '${headline}'.${
-        points ? ` Supporting bullets or badges: ${points}.` : ''
-      } Keep typography sharp and minimal; do not invent long paragraphs.`
-    : 'Leave clean space for later text overlay; do not invent long copy.';
+  const hasOnImageCopy = Boolean(brand || product || headline || points);
+
+  const textLines: Array<string | false | '' | undefined> = [];
+  if (brand) {
+    textLines.push(
+      `MANDATORY: render the brand / service name EXACTLY as '${brand}' as a clean wordmark or label in a readable optimal position (correct spelling, sharp type, no gibberish).`,
+    );
+  } else {
+    textLines.push('Do not invent or render any brand name or logo wordmark.');
+  }
+
+  if (product) {
+    textLines.push(
+      `MANDATORY: render the product name EXACTLY as '${product}' on the banner (legible product title / label, correct spelling, no gibberish).`,
+    );
+  } else {
+    textLines.push(
+      'Do not invent or render any product name lettering — leave the product unnamed in text.',
+    );
+  }
+
+  if (headline) {
+    textLines.push(
+      `MANDATORY: render the marketing headline EXACTLY as '${headline}' (short clean type, strong hierarchy).`,
+    );
+  } else {
+    textLines.push(
+      'Do not invent or render a marketing headline, slogan, or CTA line.',
+    );
+  }
+
+  if (points) {
+    textLines.push(
+      `MANDATORY: render supporting highlight points EXACTLY from: '${points}' as short badges or bullet chips only — do not add extra points.`,
+    );
+  } else {
+    textLines.push(
+      'Do not invent or render feature badges, bullet points, price tags, or highlight chips.',
+    );
+  }
+
+  textLines.push(
+    hasOnImageCopy
+      ? 'Compose only the user-provided copy above with strong contrast and clear hierarchy. Do NOT invent extra slogans, CTAs, prices, or words beyond what the user typed.'
+      : `${NO_TEXT_RULE} Leave clean space for later text overlay.`,
+  );
+
+  const textPart = appendParts(textLines);
+
+  const subjectPart = product
+    ? `Focus on a clear product visual for '${product}'.`
+    : 'Focus on a clear unnamed product visual (no product-name lettering).';
+
+  const brandContext = brand
+    ? `Brand / service context '${brand}'.`
+    : 'Untitled brand context (no brand lettering unless provided elsewhere).';
+
+  const sourcePart = isUpload
+    ? `Transform the provided reference product/photo into an original product marketing banner. ${PRODUCT_REINTERPRET[values.reinterpret]}`
+    : 'Create an original product marketing banner from scratch.';
 
   const variations = [
     'Hero product centered with soft studio lighting.',
@@ -151,13 +270,17 @@ export function buildProductPrompt(
     'Minimal ecommerce detail card composition on a clean backdrop.',
   ] as const;
 
-  const base = [
-    `Professional product marketing banner image for '${product}' by brand '${brand}'.`,
+  const base = appendParts([
+    sourcePart,
+    'Professional product marketing banner image.',
+    subjectPart,
+    brandContext,
     `Theme '${keywords}', color palette '${colorTheme}'.`,
     'Make the product the visual hero, detailed but clean, modern commercial photography / 3D product render hybrid aesthetic.',
     textPart,
     'High contrast, sharp focus, website-ready, no watermarks, no cluttered UI chrome, 4k quality.',
-  ].join(' ');
+    requirementsDirective(values),
+  ]);
 
   if (variationIndex === 0) return base;
   return `${base} Variation ${variationIndex + 1}: ${variations[(variationIndex - 1) % variations.length]}`;
@@ -167,27 +290,48 @@ export function buildHomePrompt(
   values: CreatorFormValues,
   variationIndex = 0,
 ): string {
-  const brand = values.brandName.trim() || 'the brand';
+  const brand = values.brandName.trim();
   const title = values.homeTitle.trim();
   const subtitle = values.homeSubtitle.trim();
   const keywords = collectKeywords(values);
   const colorTheme = resolveColorPalette(values.colorTheme, values.customColor);
-  const placement = TEXT_PLACEMENT[values.textPlacement];
-  const reinterpret = REINTERPRET[values.reinterpret];
+  const reinterpret = HOME_REINTERPRET[values.reinterpret];
+  const hasOnImageCopy = Boolean(brand || title || subtitle);
 
-  const textPart =
-    values.textPlacement === 'none'
-      ? 'Do not render marketing copy in the image.'
-      : title
-        ? `Optionally include short overlay-ready text '${title}'${
-            subtitle ? ` with subtitle '${subtitle}'` : ''
-          }. Prefer clean space for HTML text overlay if typography would look imperfect.`
-        : 'Prefer empty clean space for website text overlay rather than rendering imperfect letters.';
+  let textPart: string;
+  let placementPart: string;
 
-  const isUpload = values.homeSource === 'upload';
+  if (hasOnImageCopy) {
+    placementPart = TEXT_PLACEMENT[values.textPlacement];
+    textPart = appendParts([
+      brand
+        ? `MANDATORY: render the brand / service name EXACTLY as '${brand}' as a clean wordmark or logo-type in a readable spot (often near the headline block or a subtle corner lockup). Correct spelling, sharp legible type, no gibberish.`
+        : 'Do not invent a brand name or logo wordmark.',
+      title
+        ? `MANDATORY: render the hero headline EXACTLY as '${title}' (correct spelling, sharp legible type, no gibberish).`
+        : '',
+      subtitle
+        ? `MANDATORY: render the supporting subtitle EXACTLY as '${subtitle}' under/near the headline with clear hierarchy (smaller than the headline).`
+        : '',
+      'Compose all provided copy in the most readable optimal position for a website hero: strong contrast, adequate margins, not overlapping busy details.',
+      'Do NOT invent extra slogans, CTAs, fake brand names, or any words beyond the brand name / headline / subtitle the user provided.',
+    ]);
+  } else {
+    placementPart = TEXT_SAFE_AREA[values.textPlacement];
+    textPart = appendParts([
+      NO_TEXT_RULE,
+      'Do NOT invent brand names, headlines, subtitles, slogans, CTAs, or any marketing copy.',
+    ]);
+  }
+
+  const isUpload = values.imageSource === 'upload';
   const sourcePart = isUpload
     ? `Transform the provided free-license reference photo into an original website hero image. ${reinterpret}`
     : 'Create an original website homepage hero / banner image from scratch.';
+
+  const brandPart = brand
+    ? `Brand / service '${brand}'`
+    : 'Untitled brand (no brand lettering)';
 
   const variations = [
     'Cinematic wide hero with depth and soft gradients.',
@@ -196,13 +340,14 @@ export function buildHomePrompt(
     'Abstract tech atmosphere with a clear focal subject.',
   ] as const;
 
-  const base = [
+  const base = appendParts([
     sourcePart,
-    `Brand context '${brand}', theme '${keywords}', color palette '${colorTheme}'.`,
-    placement,
+    `${brandPart}, theme '${keywords}', color palette '${colorTheme}'.`,
+    placementPart,
     textPart,
     'Website homepage banner aesthetic, high resolution, no watermarks, no stock-photo logos, polished and commercial.',
-  ].join(' ');
+    requirementsDirective(values),
+  ]);
 
   if (variationIndex === 0) return base;
   return `${base} Variation ${variationIndex + 1}: ${variations[(variationIndex - 1) % variations.length]}`;
@@ -238,9 +383,7 @@ export function buildLogoPromptVariants(
   return buildPromptVariants(values, count, vary);
 }
 
-export function suggestedImageSizeForShape(
-  shape: LogoShape,
-): '1024x1024' | '1024x1536' | '1536x1024' {
+export function suggestedImageSizeForShape(shape: LogoShape): ImageSize {
   if (shape === 'horizontal') return '1536x1024';
   if (shape === 'vertical') return '1024x1536';
   return '1024x1024';
@@ -248,9 +391,9 @@ export function suggestedImageSizeForShape(
 
 export function suggestedImageSizeForMode(
   mode: CreatorFormValues['mode'],
-): '1024x1024' | '1024x1536' | '1536x1024' {
+): ImageSize {
   if (mode === 'product') return '1024x1536';
-  if (mode === 'home') return '1536x1024';
+  if (mode === 'home') return '2048x1152';
   return '1024x1024';
 }
 

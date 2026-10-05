@@ -1,0 +1,250 @@
+:root {
+  --bg: #09090b;
+  --raised: #18181b;
+  --overlay: #27272a;
+  --border: #3f3f46;
+  --text: #fafafa;
+  --muted: #a1a1aa;
+  --sky: #38bdf8;
+  --sky-deep: #0ea5e9;
+  --sky-dim: rgba(56, 189, 248, 0.12);
+  --sky-border: rgba(56, 189, 248, 0.35);
+  --ok: #4ade80;
+  --err: #f87171;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+  margin: 0 auto;
+  padding: 16px;
+  max-width: 1100px;
+  color: var(--text);
+  background: var(--bg);
+  font-size: 14px;
+}
+
+h1 {
+  font-size: 1.2rem;
+  margin: 0 0 4px;
+  color: var(--text);
+}
+
+.sub {
+  color: var(--muted);
+  margin: 0 0 16px;
+  font-size: 12px;
+}
+
+.card {
+  background: var(--raised);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+}
+
+input,
+textarea,
+button {
+  font: inherit;
+  box-sizing: border-box;
+}
+
+label {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin: 6px 0 10px;
+  background: var(--overlay);
+  color: var(--text);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #71717a;
+}
+
+.row input {
+  flex: 1;
+}
+
+button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--sky-deep);
+  color: #0c0a09;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--sky);
+}
+
+button.secondary {
+  background: var(--overlay);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+button.secondary:hover {
+  border-color: var(--sky-border);
+  color: var(--sky);
+}
+
+.card h2 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+}
+
+.card h3 {
+  margin: 0 0 4px;
+  font-size: 0.92rem;
+}
+
+.plan-meta {
+  margin: 0 0 8px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.issue-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.col-standard {
+  background: rgba(56, 189, 248, 0.06);
+  border-color: var(--sky-border);
+}
+
+.col-standard h3 {
+  color: var(--sky);
+}
+
+.col-premium {
+  background: rgba(14, 165, 233, 0.1);
+  border-color: rgba(14, 165, 233, 0.45);
+}
+
+.col-premium h3 {
+  color: #7dd3fc;
+}
+
+.col button {
+  margin: 0;
+  width: 100%;
+  font-size: 13px;
+}
+
+button.btn-premium {
+  background: #0284c7;
+  color: #f0f9ff;
+}
+
+button.btn-premium:hover {
+  background: var(--sky-deep);
+}
+
+@media (max-width: 700px) {
+  .issue-cols {
+    grid-template-columns: 1fr;
+  }
+}
+
+.note-cell {
+  min-width: 160px;
+}
+
+.note-edit {
+  width: 100%;
+  min-width: 140px;
+  margin: 0;
+  padding: 5px 6px;
+  font-size: 12px;
+  box-sizing: border-box;
+}
+
+.note-state {
+  display: block;
+  min-height: 1em;
+  margin-top: 2px;
+  color: var(--ok);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.err {
+  color: var(--err);
+}
+
+.ok {
+  color: var(--ok);
+  font-weight: 600;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  margin-top: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--border);
+  color: #e4e4e7;
+}
+
+th {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.actions button {
+  padding: 4px 6px;
+  font-size: 11px;
+}
+
+code {
+  font-size: 11px;
+  color: var(--sky);
+}
