@@ -26,14 +26,33 @@ uvicorn main:app --reload --port 8000
 
 ## Render
 
-저장소 루트의 `render.yaml` 참고. `ADMIN_TOKEN`만 시크릿으로 넣으면 됩니다.  
-디스크 `/var/data`에 SQLite·vault가 저장됩니다.
+저장소 루트 `render.yaml` 참고. 서비스 이름: **`acrossicon`**  
+기본 URL: **`https://acrossicon.onrender.com`**
+
+### Web Service 설정 체크리스트
+
+| 항목 | 값 |
+|------|-----|
+| Name | `acrossicon` |
+| Language | Python 3 |
+| Branch | `main` |
+| Root Directory | `backend` |
+| Build Command | `pip install -r requirements.txt` |
+| Start Command | `uvicorn main:app --host 0.0.0.0 --port $PORT` |
+| Disk mount | `/var/data` (1 GB) |
+| Env `ADMIN_TOKEN` | 시크릿 (직접 입력) |
+| Env `DATABASE_PATH` | `/var/data/acrossicon.db` |
+| Env `LICENSE_VAULT_PATH` | `/var/data/licenses.vault.json` |
+
+배포 후 확인:
+- 헬스: https://acrossicon.onrender.com/health  
+- 운영 콘솔: https://acrossicon.onrender.com/ops/
 
 ## 확장 설정
 
 1. Side Panel → 설정  
 2. **라이선스 키** 입력  
-3. **라이선스 서버 URL** (로컬이면 비움 → `http://127.0.0.1:8000`, Render면 배포 URL)  
+3. **라이선스 서버 URL** (로컬이면 비움 → `http://127.0.0.1:8000`, Render면 `https://acrossicon.onrender.com`)  
 4. OpenAI/Google API Key 저장  
 
 생성 시 서버에서 한도를 검사하고, 성공한 **장수**만큼 차감합니다.

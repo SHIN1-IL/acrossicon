@@ -1,9 +1,10 @@
 # AcrossIcon API + 운영 콘솔 (Render)
-# New Web Service → rootDir: backend
+# New Web Service → name: acrossicon, rootDir: backend
+# Expected URL: https://acrossicon.onrender.com
 
 services:
   - type: web
-    name: acrossicon-api
+    name: acrossicon
     runtime: python
     rootDir: backend
     buildCommand: pip install -r requirements.txt
