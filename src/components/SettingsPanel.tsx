@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { KeyRound, X } from 'lucide-react';
 import { LegalFoot } from '@/components/LegalFoot';
+import { SubscriptionGuide } from '@/components/SubscriptionGuide';
 import { AppSettings, FONT_SIZES, FontSize, Locale } from '@/types';
 import { t } from '@/i18n';
 
@@ -159,6 +160,8 @@ export function SettingsPanel({
               {t(locale, 'settings.licenseHint')}
             </p>
           </label>
+
+          <SubscriptionGuide locale={locale} />
 
           {!hideApiBaseUrl && (
             <label className="block space-y-1.5">

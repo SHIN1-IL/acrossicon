@@ -86,12 +86,16 @@ def plans():
         "standard": {
             "label": "스탠다드",
             "price_monthly": 14900,
+            "price_semi_annual": 74500,
+            "price_yearly": 149000,
             "daily_limit": 10,
             "monthly_limit": 60,
         },
         "premium": {
             "label": "프리미엄",
             "price_monthly": 29900,
+            "price_semi_annual": 149500,
+            "price_yearly": 299000,
             "daily_limit": 20,
             "monthly_limit": 120,
         },

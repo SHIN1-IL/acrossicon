@@ -184,6 +184,20 @@ const ko: Dict = {
   'settings.saving': '저장 중…',
   'settings.savedToast': '설정이 저장되었습니다.',
 
+  'subscribe.toggle': '구독 안내',
+  'subscribe.standardTitle': 'AcrossIcon 스탠다드 플랜',
+  'subscribe.standardQuota': '하루 {daily}장 · 달 {monthly}장 · 로고·상품·홈 이미지',
+  'subscribe.premiumTitle': 'AcrossIcon 프리미엄 플랜',
+  'subscribe.premiumQuota': '하루 {daily}장 · 달 {monthly}장 · 로고·상품·홈 이미지',
+  'subscribe.priceLine':
+    '월 {monthly}원 · 6개월 {semi}원(1개월 할인) · 연 {yearly}원(2개월 할인)',
+  'subscribe.holder': '예금주',
+  'subscribe.afterPay':
+    '입금 후 {method}({contact}) → {minutes}분 내 라이선스 키',
+  'subscribe.email': '이메일',
+  'subscribe.memoHint':
+    '입금 메모에 「스탠다드」또는 「프리미엄」을 적어 주세요.',
+
   'confirm.title': '생성 비용 확인',
   'confirm.body':
     '{title} 이미지 {count}장을 생성합니다. 구독 한도에서 차감됩니다.',
@@ -391,6 +405,22 @@ const en: Dict = {
   'settings.save': 'Save',
   'settings.saving': 'Saving…',
   'settings.savedToast': 'Settings saved.',
+
+  'subscribe.toggle': 'Subscription guide',
+  'subscribe.standardTitle': 'AcrossIcon Standard',
+  'subscribe.standardQuota':
+    '{daily}/day · {monthly}/mo · logo · product · home images',
+  'subscribe.premiumTitle': 'AcrossIcon Premium',
+  'subscribe.premiumQuota':
+    '{daily}/day · {monthly}/mo · logo · product · home images',
+  'subscribe.priceLine':
+    'Month {monthly} · 6 mo {semi} (1 mo off) · Year {yearly} (2 mo off)',
+  'subscribe.holder': 'Account holder',
+  'subscribe.afterPay':
+    'After transfer, message via {method} ({contact}) → key within {minutes} min',
+  'subscribe.email': 'Email',
+  'subscribe.memoHint':
+    'Put 「스탠다드」 or 「프리미엄」 in the transfer memo.',
 
   'confirm.title': 'Confirm generation cost',
   'confirm.body':
