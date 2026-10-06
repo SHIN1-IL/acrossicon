@@ -271,6 +271,35 @@ export function InputForm({
         </div>
       )}
 
+      {values.mode === 'home' && (
+        <div className="space-y-1.5">
+          <span className="text-xs font-medium text-zinc-400">
+            {t(locale, 'form.size')}
+          </span>
+          <div className="grid grid-cols-4 gap-1.5">
+            {IMAGE_SIZES.map((size) => (
+              <SizeOption
+                key={size}
+                size={size}
+                active={imageSize === size}
+                label={t(locale, `size.${size}`)}
+                onClick={() => onImageSizeChange(size)}
+              />
+            ))}
+          </div>
+          {provider === 'google' && (
+            <p className="text-[11px] text-zinc-500">
+              {t(locale, 'form.googleSizeHint')}
+            </p>
+          )}
+          {provider === 'openai' && imageSize === '2048x1152' && (
+            <p className="text-[11px] text-zinc-500">
+              {t(locale, 'form.wideHeroHint')}
+            </p>
+          )}
+        </div>
+      )}
+
       {values.mode === 'logo' && (
         <>
           <OptionGroup label={t(locale, 'form.layout')}>
@@ -610,35 +639,6 @@ export function InputForm({
           })}
         </div>
       </div>
-
-      {values.mode === 'home' && (
-        <div className="space-y-1.5">
-          <span className="text-xs font-medium text-zinc-400">
-            {t(locale, 'form.size')}
-          </span>
-          <div className="grid grid-cols-4 gap-1.5">
-            {IMAGE_SIZES.map((size) => (
-              <SizeOption
-                key={size}
-                size={size}
-                active={imageSize === size}
-                label={t(locale, `size.${size}`)}
-                onClick={() => onImageSizeChange(size)}
-              />
-            ))}
-          </div>
-          {provider === 'google' && (
-            <p className="text-[11px] text-zinc-500">
-              {t(locale, 'form.googleSizeHint')}
-            </p>
-          )}
-          {provider === 'openai' && imageSize === '2048x1152' && (
-            <p className="text-[11px] text-zinc-500">
-              {t(locale, 'form.wideHeroHint')}
-            </p>
-          )}
-        </div>
-      )}
 
       {values.mode === 'logo' && (
         <p className="text-[11px] leading-relaxed text-zinc-500">
