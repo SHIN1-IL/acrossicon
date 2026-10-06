@@ -141,7 +141,7 @@ function ActionButton({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900/90 text-zinc-100 ring-1 ring-white/10 backdrop-blur transition hover:bg-sky-500 hover:text-zinc-950 disabled:opacity-50"
+      className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900/90 text-zinc-100 ring-1 ring-white/10 backdrop-blur transition hover:bg-accent-deep hover:text-[#0c0a09] disabled:opacity-50"
     >
       {children}
     </button>

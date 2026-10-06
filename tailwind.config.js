@@ -5,15 +5,23 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Ops console tokens (backend/ops/styles.css)
         surface: {
           DEFAULT: '#09090b',
           raised: '#18181b',
           overlay: '#27272a',
           border: '#3f3f46',
         },
+        ink: {
+          DEFAULT: '#fafafa',
+          muted: '#a1a1aa',
+          dim: '#71717a',
+        },
         accent: {
           DEFAULT: '#38bdf8',
-          muted: '#0ea5e9',
+          deep: '#0ea5e9',
+          dim: 'rgba(56, 189, 248, 0.12)',
+          border: 'rgba(56, 189, 248, 0.35)',
         },
       },
       minWidth: {

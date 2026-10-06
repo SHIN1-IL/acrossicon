@@ -304,17 +304,17 @@ export default function App({ runtime = 'extension' }: AppProps) {
   if (!ready) {
     return (
       <div className="flex h-full min-w-panel items-center justify-center bg-surface">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-700 border-t-sky-400" />
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-700 border-t-accent" />
       </div>
     );
   }
 
   const shellClass = isWeb
-    ? 'mx-auto flex h-full w-full max-w-3xl flex-col bg-surface shadow-2xl shadow-black/40 ring-1 ring-surface-border/60 md:my-4 md:h-[calc(100%-2rem)] md:rounded-2xl'
+    ? 'mx-auto flex h-full w-full max-w-[1100px] flex-col overflow-hidden rounded-[10px] border border-surface-border bg-surface-raised md:my-4 md:h-[calc(100%-2rem)]'
     : 'flex h-full min-w-panel flex-col bg-surface';
 
   return (
-    <div className={isWeb ? 'h-full bg-gradient-to-b from-zinc-950 via-surface to-zinc-950' : 'h-full'}>
+    <div className={isWeb ? 'h-full bg-surface px-4 py-0 md:px-4' : 'h-full'}>
       <div className={shellClass}>
         <Header
           locale={locale}
@@ -325,7 +325,7 @@ export default function App({ runtime = 'extension' }: AppProps) {
           quotaLabel={formatQuota(quota)}
         />
 
-        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-surface">
           <InputForm
             locale={locale}
             provider="openai"

@@ -20,17 +20,17 @@ export function Header({
   planLabel,
 }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-20 border-b border-surface-border/60 bg-surface/90 px-4 py-3 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-surface-border bg-surface-raised px-4 py-3">
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2.5">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sky-500/15 text-sky-400 ring-1 ring-sky-500/30">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent-dim text-accent ring-1 ring-accent-border">
             <Sparkles className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <h1 className="truncate text-sm font-semibold tracking-tight text-zinc-50">
+            <h1 className="truncate text-sm font-semibold tracking-tight text-ink">
               AcrossIcon AI
             </h1>
-            <p className="truncate text-[11px] text-zinc-500">
+            <p className="truncate text-[11px] text-ink-muted">
               {t(locale, 'app.subtitle')}
             </p>
           </div>
@@ -38,7 +38,7 @@ export function Header({
 
         <div className="flex items-center gap-1">
           <div
-            className="flex rounded-lg bg-surface-raised p-0.5 ring-1 ring-surface-border"
+            className="flex rounded-md bg-surface-overlay p-0.5 ring-1 ring-surface-border"
             role="group"
             aria-label={t(locale, 'header.language')}
           >
@@ -50,10 +50,10 @@ export function Header({
                 key={item.id}
                 type="button"
                 onClick={() => onLocaleChange(item.id)}
-                className={`rounded-md px-2 py-1 text-[11px] font-semibold transition ${
+                className={`rounded px-2 py-1 text-[11px] font-semibold transition ${
                   locale === item.id
-                    ? 'bg-surface-overlay text-zinc-100'
-                    : 'text-zinc-500 hover:text-zinc-300'
+                    ? 'bg-surface-raised text-ink'
+                    : 'text-ink-muted hover:text-ink'
                 }`}
               >
                 {item.label}
@@ -64,13 +64,13 @@ export function Header({
           <button
             type="button"
             onClick={onOpenSettings}
-            className="relative rounded-lg p-2 text-zinc-400 transition hover:bg-surface-overlay hover:text-zinc-100"
+            className="relative rounded-md p-2 text-ink-muted transition hover:bg-surface-overlay hover:text-accent"
             aria-label={t(locale, 'header.settings')}
             title={t(locale, 'header.settings')}
           >
             <Settings className="h-[18px] w-[18px]" />
             {!hasApiKey && (
-              <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-amber-400 ring-2 ring-surface" />
+              <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-amber-400 ring-2 ring-surface-raised" />
             )}
           </button>
         </div>
@@ -79,12 +79,12 @@ export function Header({
       {(planLabel || quotaLabel) && (
         <div className="mt-2 flex flex-wrap items-center gap-2">
           {planLabel && (
-            <span className="rounded-md bg-sky-500/15 px-2 py-0.5 text-[10px] font-semibold text-sky-300 ring-1 ring-sky-500/30">
+            <span className="rounded-md bg-accent-dim px-2 py-0.5 text-[10px] font-semibold text-accent ring-1 ring-accent-border">
               {planLabel}
             </span>
           )}
           {quotaLabel && (
-            <span className="text-[10px] text-zinc-400">{quotaLabel}</span>
+            <span className="text-[10px] text-ink-muted">{quotaLabel}</span>
           )}
         </div>
       )}

@@ -3,6 +3,19 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --bg: #09090b;
+    --raised: #18181b;
+    --overlay: #27272a;
+    --border: #3f3f46;
+    --text: #fafafa;
+    --muted: #a1a1aa;
+    --sky: #38bdf8;
+    --sky-deep: #0ea5e9;
+    --sky-dim: rgba(56, 189, 248, 0.12);
+    --sky-border: rgba(56, 189, 248, 0.35);
+  }
+
   * {
     box-sizing: border-box;
   }
@@ -17,6 +30,8 @@
   body {
     min-width: 320px;
     overflow-x: hidden;
+    color: var(--text);
+    background: var(--bg);
   }
 
   ::-webkit-scrollbar {

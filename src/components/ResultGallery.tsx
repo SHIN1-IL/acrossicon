@@ -145,7 +145,7 @@ function TabButton({
       {count > 0 && (
         <span
           className={`rounded px-1 py-px text-[10px] ${
-            active ? 'bg-sky-500/20 text-sky-300' : 'bg-surface text-zinc-600'
+            active ? 'bg-accent-dim text-accent' : 'bg-surface text-zinc-600'
           }`}
         >
           {count}

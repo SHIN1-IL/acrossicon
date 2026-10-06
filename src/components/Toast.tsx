@@ -15,7 +15,7 @@ const iconMap = {
 const styleMap = {
   error: 'border-rose-500/40 bg-rose-950/90 text-rose-100',
   success: 'border-emerald-500/40 bg-emerald-950/90 text-emerald-100',
-  info: 'border-sky-500/40 bg-sky-950/90 text-sky-100',
+  info: 'border-accent-border bg-surface-raised text-accent',
 };
 
 export function Toast({ toasts, onDismiss }: ToastProps) {

@@ -132,7 +132,7 @@ export function InputForm({
         : t(locale, 'form.generateLogo');
 
   return (
-    <section className="space-y-4 border-b border-surface-border/60 px-4 py-4">
+    <section className="space-y-4 border-b border-surface-border px-4 py-4">
       {!hasApiKey && (
         <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-xs leading-relaxed text-amber-100">
           {t(locale, 'form.apiMissing')}{' '}
@@ -173,7 +173,7 @@ export function InputForm({
           value={values.brandName}
           onChange={(e) => onChange({ ...values, brandName: e.target.value })}
           placeholder={t(locale, 'form.brandPlaceholder')}
-          className="w-full rounded-lg border border-surface-border bg-surface-raised px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:border-sky-500/60"
+          className="w-full rounded-lg border border-surface-border bg-surface-overlay px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:border-accent-border"
         />
       </label>
 
@@ -240,7 +240,7 @@ export function InputForm({
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-surface-border px-3 py-3 text-xs text-zinc-400 hover:border-sky-500/40 hover:text-sky-300"
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-surface-border px-3 py-3 text-xs text-zinc-400 hover:border-accent-border hover:text-accent"
             >
               <ImagePlus className="h-4 w-4" />
               {t(locale, 'form.upload')}
@@ -253,7 +253,7 @@ export function InputForm({
               onChange={(e) =>
                 onChange({ ...values, licenseConfirmed: e.target.checked })
               }
-              className="mt-0.5 accent-sky-500"
+              className="mt-0.5 accent-[#0ea5e9]"
             />
             <span>{t(locale, 'form.licenseConfirm')}</span>
           </label>
@@ -309,7 +309,7 @@ export function InputForm({
                 onChange({ ...values, productName: e.target.value })
               }
               placeholder={t(locale, 'form.productNamePlaceholder')}
-              className="w-full rounded-lg border border-surface-border bg-surface-raised px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:border-sky-500/60"
+              className="w-full rounded-lg border border-surface-border bg-surface-overlay px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:border-accent-border"
             />
           </label>
           <label className="block space-y-1.5">
@@ -323,7 +323,7 @@ export function InputForm({
                 onChange({ ...values, productHeadline: e.target.value })
               }
               placeholder={t(locale, 'form.productHeadlinePlaceholder')}
-              className="w-full rounded-lg border border-surface-border bg-surface-raised px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:border-sky-500/60"
+              className="w-full rounded-lg border border-surface-border bg-surface-overlay px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:border-accent-border"
             />
           </label>
           <label className="block space-y-1.5">
@@ -337,7 +337,7 @@ export function InputForm({
                 onChange({ ...values, productPoints: e.target.value })
               }
               placeholder={t(locale, 'form.productPointsPlaceholder')}
-              className="w-full rounded-lg border border-surface-border bg-surface-raised px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:border-sky-500/60"
+              className="w-full rounded-lg border border-surface-border bg-surface-overlay px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:border-accent-border"
             />
           </label>
         </>
@@ -354,7 +354,7 @@ export function InputForm({
               value={values.homeTitle}
               onChange={(e) => onChange({ ...values, homeTitle: e.target.value })}
               placeholder={t(locale, 'form.homeTitlePlaceholder')}
-              className="w-full rounded-lg border border-surface-border bg-surface-raised px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:border-sky-500/60"
+              className="w-full rounded-lg border border-surface-border bg-surface-overlay px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:border-accent-border"
             />
           </label>
           <label className="block space-y-1.5">
@@ -368,7 +368,7 @@ export function InputForm({
                 onChange({ ...values, homeSubtitle: e.target.value })
               }
               placeholder={t(locale, 'form.homeSubtitlePlaceholder')}
-              className="w-full rounded-lg border border-surface-border bg-surface-raised px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:border-sky-500/60"
+              className="w-full rounded-lg border border-surface-border bg-surface-overlay px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:border-accent-border"
             />
           </label>
 
@@ -424,7 +424,7 @@ export function InputForm({
                 onClick={() => toggleTag(tag)}
                 className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition ${
                   active
-                    ? 'bg-sky-500/20 text-sky-300 ring-1 ring-sky-500/40'
+                    ? 'bg-accent-dim text-accent ring-1 ring-accent-border'
                     : 'bg-surface-raised text-zinc-400 ring-1 ring-surface-border hover:text-zinc-200'
                 }`}
               >
@@ -436,7 +436,7 @@ export function InputForm({
       </div>
 
       <label className="block space-y-1.5">
-        <span className="text-xs font-medium text-sky-200">
+        <span className="text-xs font-medium text-accent">
           {t(locale, 'form.requirements')}
         </span>
         <textarea
@@ -444,7 +444,7 @@ export function InputForm({
           onChange={(e) => onChange({ ...values, requirements: e.target.value })}
           placeholder={t(locale, 'form.requirementsPlaceholder')}
           rows={3}
-          className="w-full resize-y rounded-lg border border-sky-500/40 bg-sky-500/10 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none transition focus:border-sky-500/60 focus:ring-1 focus:ring-sky-500/30"
+          className="w-full resize-y rounded-lg border border-accent-border bg-accent-dim px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none transition focus:border-accent-border focus:ring-1 focus:ring-accent-border"
         />
         <p className="text-[11px] leading-relaxed text-zinc-500">
           {t(locale, 'form.requirementsHint')}
@@ -463,7 +463,7 @@ export function InputForm({
               colorTheme: e.target.value as CreatorFormValues['colorTheme'],
             })
           }
-          className="w-full rounded-lg border border-surface-border bg-surface-raised px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-sky-500/60"
+          className="w-full rounded-lg border border-surface-border bg-surface-overlay px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-accent-border"
         >
           {COLOR_THEMES.map((theme) => (
             <option key={theme} value={theme}>
@@ -483,7 +483,7 @@ export function InputForm({
             value={values.customColor}
             onChange={(e) => onChange({ ...values, customColor: e.target.value })}
             placeholder={t(locale, 'form.customColorPlaceholder')}
-            className="w-full rounded-lg border border-surface-border bg-surface-raised px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:border-sky-500/60"
+            className="w-full rounded-lg border border-surface-border bg-surface-overlay px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:border-accent-border"
           />
         </label>
       )}
@@ -493,18 +493,18 @@ export function InputForm({
         onClick={() => onPromptVariationChange(!promptVariation)}
         className={`flex w-full items-center justify-between rounded-lg border px-3 py-2.5 text-left transition ${
           promptVariation
-            ? 'border-sky-500/40 bg-sky-500/10'
+            ? 'border-accent-border bg-accent-dim'
             : 'border-surface-border bg-surface-raised'
         }`}
       >
         <div className="flex items-center gap-2">
           <Shuffle
-            className={`h-3.5 w-3.5 ${promptVariation ? 'text-sky-300' : 'text-zinc-500'}`}
+            className={`h-3.5 w-3.5 ${promptVariation ? 'text-accent' : 'text-zinc-500'}`}
           />
           <div>
             <p
               className={`text-xs font-medium ${
-                promptVariation ? 'text-sky-200' : 'text-zinc-300'
+                promptVariation ? 'text-accent' : 'text-zinc-300'
               }`}
             >
               {t(locale, 'form.variation')}
@@ -517,7 +517,7 @@ export function InputForm({
         <span
           className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
             promptVariation
-              ? 'bg-sky-500/20 text-sky-300'
+              ? 'bg-accent-dim text-accent'
               : 'bg-surface-overlay text-zinc-500'
           }`}
         >
@@ -562,7 +562,7 @@ export function InputForm({
                 onClick={() => onImageCountChange(n)}
                 className={`flex-1 rounded-lg py-2 text-sm font-semibold transition ${
                   active
-                    ? 'bg-sky-500/20 text-sky-200 ring-1 ring-sky-500/50'
+                    ? 'bg-accent-dim text-accent ring-1 ring-accent-border'
                     : 'bg-surface-raised text-zinc-400 ring-1 ring-surface-border hover:text-zinc-200'
                 }`}
               >
@@ -605,7 +605,7 @@ export function InputForm({
           type="button"
           onClick={onSubmit}
           disabled={!canSubmit}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-sky-500 px-4 py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent-deep px-4 py-2.5 text-sm font-semibold text-[#0c0a09] transition hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40"
         >
           {loading ? (
             <>
@@ -659,7 +659,7 @@ function SizeOption({
       title={label}
       className={`flex flex-col items-center gap-1.5 rounded-lg px-1 py-2 transition ${
         active
-          ? 'bg-sky-500/15 ring-1 ring-sky-500/50'
+          ? 'bg-accent-dim ring-1 ring-accent-border'
           : 'bg-surface-raised ring-1 ring-surface-border hover:bg-surface-overlay'
       }`}
     >
@@ -667,7 +667,7 @@ function SizeOption({
         <div
           className={`flex items-center justify-center rounded-[3px] border ${
             active
-              ? 'border-sky-400/80 bg-sky-500/20 text-sky-200'
+              ? 'border-accent bg-accent-dim text-accent'
               : 'border-zinc-500 bg-zinc-800/80 text-zinc-400'
           }`}
           style={{ width: frame.width, height: frame.height }}
@@ -679,7 +679,7 @@ function SizeOption({
       </div>
       <span
         className={`text-center text-[9px] font-medium leading-tight ${
-          active ? 'text-sky-200' : 'text-zinc-500'
+          active ? 'text-accent' : 'text-zinc-500'
         }`}
       >
         {label}
@@ -721,7 +721,7 @@ function OptionChip({
       onClick={onClick}
       className={`rounded-md px-2.5 py-1.5 text-left transition ${
         active
-          ? 'bg-sky-500/20 text-sky-200 ring-1 ring-sky-500/40'
+          ? 'bg-accent-dim text-accent ring-1 ring-accent-border'
           : 'bg-surface-raised text-zinc-400 ring-1 ring-surface-border hover:text-zinc-200'
       }`}
     >

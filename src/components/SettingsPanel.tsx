@@ -59,7 +59,7 @@ export function SettingsPanel({
       <aside className="relative flex h-full w-full max-w-[360px] min-w-[280px] flex-col border-l border-surface-border bg-surface-raised shadow-2xl animate-slide-in">
         <div className="flex items-center justify-between border-b border-surface-border px-4 py-3">
           <div className="flex items-center gap-2">
-            <KeyRound className="h-4 w-4 text-sky-400" />
+            <KeyRound className="h-4 w-4 text-accent" />
             <h2 className="text-sm font-semibold text-zinc-100">
               {t(locale, 'settings.title')}
             </h2>
@@ -87,7 +87,7 @@ export function SettingsPanel({
                   locale: e.target.value as Locale,
                 }))
               }
-              className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm text-zinc-100 outline-none focus:border-sky-500/60"
+              className="w-full rounded-lg border border-surface-border bg-surface-overlay px-3 py-2 text-sm text-zinc-100 outline-none focus:border-accent-border"
             >
               <option value="ko">한국어</option>
               <option value="en">English</option>
@@ -110,7 +110,7 @@ export function SettingsPanel({
               placeholder={t(locale, 'settings.licenseKeyPlaceholder')}
               autoComplete="off"
               spellCheck={false}
-              className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 font-mono text-sm uppercase tracking-wide text-zinc-100 outline-none focus:border-sky-500/60"
+              className="w-full rounded-lg border border-surface-border bg-surface-overlay px-3 py-2 font-mono text-sm uppercase tracking-wide text-zinc-100 outline-none focus:border-accent-border"
             />
             <p className="text-[11px] leading-relaxed text-zinc-500">
               {t(locale, 'settings.licenseHint')}
@@ -131,7 +131,7 @@ export function SettingsPanel({
                 placeholder="https://acrossicon.onrender.com"
                 autoComplete="off"
                 spellCheck={false}
-                className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 font-mono text-xs text-zinc-100 outline-none focus:border-sky-500/60"
+                className="w-full rounded-lg border border-surface-border bg-surface-overlay px-3 py-2 font-mono text-xs text-zinc-100 outline-none focus:border-accent-border"
               />
               <p className="text-[11px] leading-relaxed text-zinc-500">
                 {t(locale, 'settings.apiBaseUrlHint')}
@@ -139,7 +139,7 @@ export function SettingsPanel({
             </label>
           )}
 
-          <label className="flex cursor-pointer items-start justify-between gap-3 rounded-lg border border-surface-border bg-surface px-3 py-3">
+          <label className="flex cursor-pointer items-start justify-between gap-3 rounded-lg border border-surface-border bg-surface-overlay px-3 py-3">
             <div>
               <span className="text-xs font-medium text-zinc-300">
                 {t(locale, 'settings.variation')}
@@ -154,7 +154,7 @@ export function SettingsPanel({
               onChange={(e) =>
                 setDraft((prev) => ({ ...prev, promptVariation: e.target.checked }))
               }
-              className="mt-0.5 h-4 w-4 accent-sky-500"
+              className="mt-0.5 h-4 w-4 accent-[#0ea5e9]"
             />
           </label>
         </div>
@@ -164,7 +164,7 @@ export function SettingsPanel({
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="w-full rounded-lg bg-sky-500 px-4 py-2.5 text-sm font-medium text-zinc-950 transition hover:bg-sky-400 disabled:opacity-50"
+            className="w-full rounded-lg bg-accent-deep px-4 py-2.5 text-sm font-bold text-[#0c0a09] transition hover:bg-accent disabled:opacity-50"
           >
             {saving ? t(locale, 'settings.saving') : t(locale, 'settings.save')}
           </button>

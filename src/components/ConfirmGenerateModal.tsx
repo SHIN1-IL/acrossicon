@@ -76,19 +76,19 @@ export function ConfirmGenerateModal({
           })}
         </p>
 
-        <div className="mb-4 rounded-lg border border-surface-border bg-surface px-3 py-2.5">
+        <div className="mb-4 rounded-lg border border-surface-border bg-surface-overlay px-3 py-2.5">
           <div className="flex items-baseline justify-between gap-2">
             <span className="text-[11px] text-zinc-500">
               {t(locale, 'confirm.cost')}
             </span>
-            <span className="text-lg font-semibold tracking-tight text-sky-300">
+            <span className="text-lg font-semibold tracking-tight text-accent">
               {estimate.label}
             </span>
           </div>
           <p className="mt-1 text-[11px] text-zinc-600">{estimate.note}</p>
           <p className="mt-1.5 text-[11px] text-zinc-500">
             {t(locale, 'confirm.variation')}:{' '}
-            <span className={promptVariation ? 'text-sky-300' : 'text-zinc-400'}>
+            <span className={promptVariation ? 'text-accent' : 'text-zinc-400'}>
               {promptVariation
                 ? t(locale, 'confirm.variationOn')
                 : t(locale, 'confirm.variationOff')}
@@ -101,7 +101,7 @@ export function ConfirmGenerateModal({
             type="button"
             onClick={onCancel}
             disabled={confirming}
-            className="flex-1 rounded-lg border border-surface-border bg-surface px-3 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-surface-overlay disabled:opacity-40"
+            className="flex-1 rounded-lg border border-surface-border bg-surface-overlay px-3 py-2.5 text-sm font-medium text-ink transition hover:border-accent-border hover:text-accent disabled:opacity-40"
           >
             {t(locale, 'confirm.cancel')}
           </button>
@@ -109,7 +109,7 @@ export function ConfirmGenerateModal({
             type="button"
             onClick={onConfirm}
             disabled={confirming}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-sky-500 px-3 py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-sky-400 disabled:opacity-50"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-accent-deep px-3 py-2.5 text-sm font-semibold text-[#0c0a09] transition hover:bg-accent disabled:opacity-50"
           >
             <Wand2 className="h-3.5 w-3.5" />
             {confirming
