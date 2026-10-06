@@ -14,6 +14,8 @@ import {
   Locale,
   LogoLayout,
   LogoShape,
+  PRODUCT_FORMATS,
+  ProductFormat,
   REINTERPRET_STRENGTHS,
   STYLE_TAGS,
   TEXT_PLACEMENTS,
@@ -23,12 +25,14 @@ import {
 import {
   colorThemeLabel,
   layoutLabel,
+  productFormatLabel,
   shapeLabel,
   styleTagLabel,
   t,
 } from '@/i18n';
 import {
   buildPromptVariants,
+  sizeForProductFormat,
   suggestedImageSizeForMode,
   suggestedImageSizeForShape,
 } from '@/lib/promptEngine';
@@ -84,12 +88,19 @@ export function InputForm({
 
   const handleModeChange = (mode: GenerationMode) => {
     onChange({ ...values, mode });
-    onSuggestImageSize(suggestedImageSizeForMode(mode));
+    onSuggestImageSize(
+      suggestedImageSizeForMode(mode, values.productFormat),
+    );
   };
 
   const handleShapeChange = (shape: LogoShape) => {
     onChange({ ...values, shape });
     onSuggestImageSize(suggestedImageSizeForShape(shape));
+  };
+
+  const handleProductFormatChange = (productFormat: ProductFormat) => {
+    onChange({ ...values, productFormat });
+    onSuggestImageSize(sizeForProductFormat(productFormat));
   };
 
   const handleFile = async (file: File | null) => {
@@ -298,6 +309,33 @@ export function InputForm({
 
       {values.mode === 'product' && (
         <>
+          <div className="space-y-1.5">
+            <span className="text-xs font-medium text-zinc-400">
+              {t(locale, 'form.productFormat')}
+            </span>
+            <div className="grid grid-cols-2 gap-1.5 min-[420px]:grid-cols-4">
+              {PRODUCT_FORMATS.map((format) => {
+                const size = sizeForProductFormat(format);
+                const meta = productFormatLabel(locale, format);
+                return (
+                  <FormatOption
+                    key={format}
+                    size={size}
+                    active={values.productFormat === format}
+                    label={meta.label}
+                    hint={meta.hint}
+                    onClick={() => handleProductFormatChange(format)}
+                  />
+                );
+              })}
+            </div>
+            <p className="text-[11px] leading-relaxed text-zinc-500">
+              {t(locale, 'form.productFormatHint', {
+                size: t(locale, `size.${imageSize}`),
+              })}
+            </p>
+          </div>
+
           <label className="block space-y-1.5">
             <span className="text-xs font-medium text-zinc-400">
               {t(locale, 'form.productName')} <span className="text-rose-400">*</span>
@@ -573,32 +611,42 @@ export function InputForm({
         </div>
       </div>
 
-      <div className="space-y-1.5">
-        <span className="text-xs font-medium text-zinc-400">
-          {t(locale, 'form.size')}
-        </span>
-        <div className="grid grid-cols-4 gap-1.5">
-          {IMAGE_SIZES.map((size) => (
-            <SizeOption
-              key={size}
-              size={size}
-              active={imageSize === size}
-              label={t(locale, `size.${size}`)}
-              onClick={() => onImageSizeChange(size)}
-            />
-          ))}
+      {values.mode === 'home' && (
+        <div className="space-y-1.5">
+          <span className="text-xs font-medium text-zinc-400">
+            {t(locale, 'form.size')}
+          </span>
+          <div className="grid grid-cols-4 gap-1.5">
+            {IMAGE_SIZES.map((size) => (
+              <SizeOption
+                key={size}
+                size={size}
+                active={imageSize === size}
+                label={t(locale, `size.${size}`)}
+                onClick={() => onImageSizeChange(size)}
+              />
+            ))}
+          </div>
+          {provider === 'google' && (
+            <p className="text-[11px] text-zinc-500">
+              {t(locale, 'form.googleSizeHint')}
+            </p>
+          )}
+          {provider === 'openai' && imageSize === '2048x1152' && (
+            <p className="text-[11px] text-zinc-500">
+              {t(locale, 'form.wideHeroHint')}
+            </p>
+          )}
         </div>
-        {provider === 'google' && (
-          <p className="text-[11px] text-zinc-500">
-            {t(locale, 'form.googleSizeHint')}
-          </p>
-        )}
-        {provider === 'openai' && imageSize === '2048x1152' && (
-          <p className="text-[11px] text-zinc-500">
-            {t(locale, 'form.wideHeroHint')}
-          </p>
-        )}
-      </div>
+      )}
+
+      {values.mode === 'logo' && (
+        <p className="text-[11px] leading-relaxed text-zinc-500">
+          {t(locale, 'form.logoSizeAutoHint', {
+            size: t(locale, `size.${imageSize}`),
+          })}
+        </p>
+      )}
 
       <div className="space-y-1.5">
         <button
@@ -683,6 +731,63 @@ function SizeOption({
         }`}
       >
         {label}
+      </span>
+    </button>
+  );
+}
+
+function FormatOption({
+  size,
+  active,
+  label,
+  hint,
+  onClick,
+}: {
+  size: ImageSize;
+  active: boolean;
+  label: string;
+  hint: string;
+  onClick: () => void;
+}) {
+  const frame = SIZE_FRAME[size];
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={`${label} · ${hint}`}
+      className={`flex flex-col items-center gap-1 rounded-lg px-1.5 py-2 transition ${
+        active
+          ? 'bg-surface-banner ring-1 ring-accent-border'
+          : 'bg-surface-raised ring-1 ring-surface-border hover:bg-surface-overlay'
+      }`}
+    >
+      <div className="flex h-10 w-full items-center justify-center">
+        <div
+          className={`flex items-center justify-center rounded-[3px] border ${
+            active
+              ? 'border-accent bg-accent-soft text-accent'
+              : 'border-zinc-500 bg-zinc-800/80 text-zinc-400'
+          }`}
+          style={{ width: frame.width, height: frame.height }}
+        >
+          <span className="text-[8px] font-bold leading-none tracking-tight">
+            {frame.text}
+          </span>
+        </div>
+      </div>
+      <span
+        className={`text-center text-[10px] font-semibold leading-tight ${
+          active ? 'text-accent' : 'text-zinc-300'
+        }`}
+      >
+        {label}
+      </span>
+      <span
+        className={`text-center text-[9px] leading-tight ${
+          active ? 'text-accent/80' : 'text-zinc-500'
+        }`}
+      >
+        {hint}
       </span>
     </button>
   );

@@ -4,6 +4,8 @@ import {
   ImageSize,
   LogoLayout,
   LogoShape,
+  ProductFormat,
+  PRODUCT_FORMAT_SIZE,
   ReinterpretStrength,
   TextPlacement,
 } from '@/types';
@@ -70,6 +72,16 @@ const TEXT_PLACEMENT: Record<TextPlacement, string> = {
   center:
     'Place the headline/subtitle block in the CENTER with clear hierarchy. Keep supporting visuals toward the edges.',
   none: 'Auto-choose the most readable optimal position for the headline/subtitle (usually left or center) with strong contrast against the background.',
+};
+
+const PRODUCT_FORMAT_DIRECTIVES: Record<ProductFormat, string> = {
+  square:
+    'Compose as a square product card (1:1) for marketplace listings and catalog thumbnails — centered hero product, tidy margins, no wasted edge space.',
+  portrait:
+    'Compose as a tall portrait product banner (2:3) for mobile detail / story-style frames — product dominant vertically, clean top/bottom hierarchy.',
+  landscape:
+    'Compose as a landscape product banner (3:2) for catalog and detail headers — product hero with side space for copy or accents.',
+  wide: 'Compose as a wide 16:9 product hero banner for web — cinematic product staging with horizontal breathing room for headline and supporting copy.',
 };
 
 /** Safe-area guidance when the user did NOT provide hero copy. */
@@ -273,6 +285,8 @@ export function buildProductPrompt(
   const base = appendParts([
     sourcePart,
     'Professional product marketing banner image.',
+    PRODUCT_FORMAT_DIRECTIVES[values.productFormat] ||
+      PRODUCT_FORMAT_DIRECTIVES.portrait,
     subjectPart,
     brandContext,
     `Theme '${keywords}', color palette '${colorTheme}'.`,
@@ -389,10 +403,15 @@ export function suggestedImageSizeForShape(shape: LogoShape): ImageSize {
   return '1024x1024';
 }
 
+export function sizeForProductFormat(format: ProductFormat): ImageSize {
+  return PRODUCT_FORMAT_SIZE[format];
+}
+
 export function suggestedImageSizeForMode(
   mode: CreatorFormValues['mode'],
+  productFormat: ProductFormat = 'portrait',
 ): ImageSize {
-  if (mode === 'product') return '1024x1536';
+  if (mode === 'product') return sizeForProductFormat(productFormat);
   if (mode === 'home') return '2048x1152';
   return '1024x1024';
 }

@@ -9,6 +9,9 @@ export type AiProvider = 'openai' | 'google';
 
 export type GenerationMode = 'logo' | 'product' | 'home';
 
+/** Product banner layout + matched resolution. */
+export type ProductFormat = 'square' | 'portrait' | 'landscape' | 'wide';
+
 export type ImageSource = 'generate' | 'upload';
 
 /** @deprecated Use ImageSource */
@@ -80,6 +83,8 @@ export interface CreatorFormValues {
   productName: string;
   productHeadline: string;
   productPoints: string;
+  /** Product banner format (pairs composition with resolution). */
+  productFormat: ProductFormat;
   /** Home / hero fields */
   homeTitle: string;
   homeSubtitle: string;
@@ -144,6 +149,7 @@ export const INITIAL_FORM: CreatorFormValues = {
   productName: '',
   productHeadline: '',
   productPoints: '',
+  productFormat: 'portrait',
   homeTitle: '',
   homeSubtitle: '',
   textPlacement: 'left',
@@ -155,6 +161,21 @@ export const INITIAL_FORM: CreatorFormValues = {
 };
 
 export const GENERATION_MODES: GenerationMode[] = ['logo', 'product', 'home'];
+
+export const PRODUCT_FORMATS: ProductFormat[] = [
+  'square',
+  'portrait',
+  'landscape',
+  'wide',
+];
+
+/** Matched OpenAI size for each product banner format. */
+export const PRODUCT_FORMAT_SIZE: Record<ProductFormat, ImageSize> = {
+  square: '1024x1024',
+  portrait: '1024x1536',
+  landscape: '1536x1024',
+  wide: '2048x1152',
+};
 
 export const TEXT_PLACEMENTS: TextPlacement[] = [
   'left',
@@ -206,6 +227,20 @@ export function normalizeLocale(value: string | undefined): Locale {
 
 export function normalizeFontSize(value: string | undefined): FontSize {
   return value === 'sm' || value === 'lg' ? value : 'md';
+}
+
+export function normalizeProductFormat(
+  value: string | undefined,
+): ProductFormat {
+  if (
+    value === 'square' ||
+    value === 'portrait' ||
+    value === 'landscape' ||
+    value === 'wide'
+  ) {
+    return value;
+  }
+  return 'portrait';
 }
 
 /** Normalize legacy DALL·E sizes stored in chrome.storage. */

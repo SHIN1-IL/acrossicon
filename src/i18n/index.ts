@@ -3,6 +3,7 @@ import {
   Locale,
   LogoLayout,
   LogoShape,
+  ProductFormat,
 } from '@/types';
 
 type Dict = Record<string, string>;
@@ -61,6 +62,17 @@ const ko: Dict = {
   'form.productHeadlinePlaceholder': '예: 지금 바로 시작하세요 (입력 시 이미지에 반영)',
   'form.productPoints': '강조 포인트',
   'form.productPointsPlaceholder': '예: 무료 체험, 빠른 설정 (입력 시 이미지에 반영)',
+  'form.productFormat': '상품 배너 형태',
+  'form.productFormatHint': '선택한 형태에 맞춰 해상도 {size}로 생성됩니다.',
+  'form.logoSizeAutoHint': '로고는 형태에 맞춰 해상도 {size}가 자동 적용됩니다.',
+  'productFormat.square': '정사각 카드',
+  'productFormat.squareHint': '1:1 · 1024²',
+  'productFormat.portrait': '세로 상세',
+  'productFormat.portraitHint': '2:3 · 1024×1536',
+  'productFormat.landscape': '가로 배너',
+  'productFormat.landscapeHint': '3:2 · 1536×1024',
+  'productFormat.wide': '와이드 히어로',
+  'productFormat.wideHint': '16:9 · 2048×1152',
 
   'form.homeSource': '시작 방식',
   'form.homeSourceGenerate': '새로 생성',
@@ -254,6 +266,17 @@ const en: Dict = {
   'form.productHeadlinePlaceholder': 'e.g. Start in minutes (shown in the image when filled)',
   'form.productPoints': 'Key points',
   'form.productPointsPlaceholder': 'e.g. Free trial, Fast setup (shown in the image when filled)',
+  'form.productFormat': 'Product banner format',
+  'form.productFormatHint': 'Resolution is set to {size} to match the format.',
+  'form.logoSizeAutoHint': 'Logo resolution auto-matches shape ({size}).',
+  'productFormat.square': 'Square card',
+  'productFormat.squareHint': '1:1 · 1024²',
+  'productFormat.portrait': 'Portrait detail',
+  'productFormat.portraitHint': '2:3 · 1024×1536',
+  'productFormat.landscape': 'Landscape banner',
+  'productFormat.landscapeHint': '3:2 · 1536×1024',
+  'productFormat.wide': 'Wide hero',
+  'productFormat.wideHint': '16:9 · 2048×1152',
 
   'form.homeSource': 'Start from',
   'form.homeSourceGenerate': 'Generate new',
@@ -433,5 +456,18 @@ export function shapeLabel(locale: Locale, shape: LogoShape): {
   return {
     label: t(locale, `shape.${shape}`),
     hint: t(locale, `shape.${shape}Hint`),
+  };
+}
+
+export function productFormatLabel(
+  locale: Locale,
+  format: ProductFormat,
+): {
+  label: string;
+  hint: string;
+} {
+  return {
+    label: t(locale, `productFormat.${format}`),
+    hint: t(locale, `productFormat.${format}Hint`),
   };
 }
