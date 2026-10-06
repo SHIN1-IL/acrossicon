@@ -40,7 +40,7 @@ export function ResultGallery({
   return (
     <section className="flex flex-1 flex-col px-4 py-4">
       <div className="mb-3 flex items-center justify-between gap-2">
-        <div className="flex rounded-lg bg-surface-raised p-0.5 ring-1 ring-surface-border">
+        <div className="flex rounded-[10px] border border-accent-border bg-surface-banner p-0.5">
           <TabButton
             active={tab === 'results'}
             onClick={() => onTabChange('results')}
@@ -136,8 +136,8 @@ function TabButton({
       onClick={onClick}
       className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium transition ${
         active
-          ? 'bg-surface-overlay text-zinc-100 shadow-sm'
-          : 'text-zinc-500 hover:text-zinc-300'
+          ? 'bg-accent-deep text-[#0c0a09]'
+          : 'text-ink-muted hover:text-accent'
       }`}
     >
       {icon}
@@ -145,7 +145,7 @@ function TabButton({
       {count > 0 && (
         <span
           className={`rounded px-1 py-px text-[10px] ${
-            active ? 'bg-accent-dim text-accent' : 'bg-surface text-zinc-600'
+            active ? 'bg-[#0c0a09]/20 text-[#0c0a09]' : 'bg-surface-overlay text-zinc-500'
           }`}
         >
           {count}

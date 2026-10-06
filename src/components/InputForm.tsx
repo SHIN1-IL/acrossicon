@@ -147,7 +147,7 @@ export function InputForm({
         </div>
       )}
 
-      <div className="flex rounded-lg bg-surface-raised p-0.5 ring-1 ring-surface-border">
+      <div className="flex rounded-[10px] border border-accent-border bg-surface-banner p-0.5">
         {GENERATION_MODES.map((mode) => (
           <button
             key={mode}
@@ -155,8 +155,8 @@ export function InputForm({
             onClick={() => handleModeChange(mode)}
             className={`flex-1 rounded-md px-2 py-1.5 text-[11px] font-semibold transition ${
               values.mode === mode
-                ? 'bg-surface-overlay text-zinc-100'
-                : 'text-zinc-500 hover:text-zinc-300'
+                ? 'bg-accent-deep text-[#0c0a09]'
+                : 'text-ink-muted hover:text-accent'
             }`}
           >
             {t(locale, `mode.${mode}`)}
@@ -193,7 +193,7 @@ export function InputForm({
       </OptionGroup>
 
       {values.imageSource === 'upload' && (
-        <div className="space-y-2 rounded-lg border border-surface-border bg-surface-raised/60 p-3">
+        <div className="space-y-2 rounded-[10px] border border-accent-border bg-surface-banner p-3">
           <p className="text-[11px] leading-relaxed text-zinc-500">
             {t(locale, 'form.uploadHint')}
           </p>
@@ -424,7 +424,7 @@ export function InputForm({
                 onClick={() => toggleTag(tag)}
                 className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition ${
                   active
-                    ? 'bg-accent-dim text-accent ring-1 ring-accent-border'
+                    ? 'bg-surface-banner text-accent ring-1 ring-accent-border'
                     : 'bg-surface-raised text-zinc-400 ring-1 ring-surface-border hover:text-zinc-200'
                 }`}
               >
@@ -444,7 +444,7 @@ export function InputForm({
           onChange={(e) => onChange({ ...values, requirements: e.target.value })}
           placeholder={t(locale, 'form.requirementsPlaceholder')}
           rows={3}
-          className="w-full resize-y rounded-lg border border-accent-border bg-accent-dim px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none transition focus:border-accent-border focus:ring-1 focus:ring-accent-border"
+          className="w-full resize-y rounded-lg border border-accent-border bg-surface-banner px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none transition focus:border-accent-border focus:ring-1 focus:ring-accent-border"
         />
         <p className="text-[11px] leading-relaxed text-zinc-500">
           {t(locale, 'form.requirementsHint')}
@@ -493,7 +493,7 @@ export function InputForm({
         onClick={() => onPromptVariationChange(!promptVariation)}
         className={`flex w-full items-center justify-between rounded-lg border px-3 py-2.5 text-left transition ${
           promptVariation
-            ? 'border-accent-border bg-accent-dim'
+            ? 'border-accent-border bg-surface-banner'
             : 'border-surface-border bg-surface-raised'
         }`}
       >
@@ -517,7 +517,7 @@ export function InputForm({
         <span
           className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
             promptVariation
-              ? 'bg-accent-dim text-accent'
+              ? 'bg-surface-banner text-accent'
               : 'bg-surface-overlay text-zinc-500'
           }`}
         >
@@ -526,7 +526,7 @@ export function InputForm({
       </button>
 
       {previewPrompts.length > 0 && (
-        <details className="rounded-lg border border-surface-border/80 bg-surface-raised/60">
+        <details className="rounded-lg border border-accent-border bg-surface-banner">
           <summary className="cursor-pointer px-3 py-2 text-[11px] font-medium text-zinc-400 hover:text-zinc-300">
             {t(locale, 'form.promptPreview')}
             {promptVariation && imageCount > 1
@@ -562,7 +562,7 @@ export function InputForm({
                 onClick={() => onImageCountChange(n)}
                 className={`flex-1 rounded-lg py-2 text-sm font-semibold transition ${
                   active
-                    ? 'bg-accent-dim text-accent ring-1 ring-accent-border'
+                    ? 'bg-surface-banner text-accent ring-1 ring-accent-border'
                     : 'bg-surface-raised text-zinc-400 ring-1 ring-surface-border hover:text-zinc-200'
                 }`}
               >
@@ -659,7 +659,7 @@ function SizeOption({
       title={label}
       className={`flex flex-col items-center gap-1.5 rounded-lg px-1 py-2 transition ${
         active
-          ? 'bg-accent-dim ring-1 ring-accent-border'
+          ? 'bg-surface-banner ring-1 ring-accent-border'
           : 'bg-surface-raised ring-1 ring-surface-border hover:bg-surface-overlay'
       }`}
     >
@@ -667,7 +667,7 @@ function SizeOption({
         <div
           className={`flex items-center justify-center rounded-[3px] border ${
             active
-              ? 'border-accent bg-accent-dim text-accent'
+              ? 'border-accent bg-accent-soft text-accent'
               : 'border-zinc-500 bg-zinc-800/80 text-zinc-400'
           }`}
           style={{ width: frame.width, height: frame.height }}
@@ -721,7 +721,7 @@ function OptionChip({
       onClick={onClick}
       className={`rounded-md px-2.5 py-1.5 text-left transition ${
         active
-          ? 'bg-accent-dim text-accent ring-1 ring-accent-border'
+          ? 'bg-surface-banner text-accent ring-1 ring-accent-border'
           : 'bg-surface-raised text-zinc-400 ring-1 ring-surface-border hover:text-zinc-200'
       }`}
     >

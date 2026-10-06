@@ -20,10 +20,10 @@ export function Header({
   planLabel,
 }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-20 border-b border-surface-border bg-surface-raised px-4 py-3">
+    <header className="sticky top-0 z-20 border-b border-surface-border bg-surface-banner px-4 py-3">
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2.5">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent-dim text-accent ring-1 ring-accent-border">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent ring-1 ring-accent-border">
             <Sparkles className="h-4 w-4" />
           </div>
           <div className="min-w-0">
@@ -79,7 +79,7 @@ export function Header({
       {(planLabel || quotaLabel) && (
         <div className="mt-2 flex flex-wrap items-center gap-2">
           {planLabel && (
-            <span className="rounded-md bg-accent-dim px-2 py-0.5 text-[10px] font-semibold text-accent ring-1 ring-accent-border">
+            <span className="rounded-md border border-accent-border bg-surface-banner px-2 py-0.5 text-[10px] font-semibold text-accent">
               {planLabel}
             </span>
           )}

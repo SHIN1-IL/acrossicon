@@ -314,7 +314,14 @@ export default function App({ runtime = 'extension' }: AppProps) {
     : 'flex h-full min-w-panel flex-col bg-surface';
 
   return (
-    <div className={isWeb ? 'h-full bg-surface px-4 py-0 md:px-4' : 'h-full'}>
+    <div
+      className={
+        isWeb
+          ? 'h-full bg-surface px-4'
+          : 'h-full bg-surface'
+      }
+      style={isWeb ? { background: 'var(--bg)' } : undefined}
+    >
       <div className={shellClass}>
         <Header
           locale={locale}
@@ -325,7 +332,7 @@ export default function App({ runtime = 'extension' }: AppProps) {
           quotaLabel={formatQuota(quota)}
         />
 
-        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-surface">
+        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-surface-raised">
           <InputForm
             locale={locale}
             provider="openai"

@@ -5,11 +5,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Ops console tokens (backend/ops/styles.css)
+        // Ops console tokens — sampled from /ops screenshot
         surface: {
-          DEFAULT: '#09090b',
-          raised: '#18181b',
-          overlay: '#27272a',
+          DEFAULT: '#09090b', // page bg
+          raised: '#18181b', // cards
+          banner: '#1c232d', // plan/banner panel fill
+          overlay: '#27272a', // inputs / secondary buttons
           border: '#3f3f46',
         },
         ink: {
@@ -19,8 +20,10 @@ export default {
         },
         accent: {
           DEFAULT: '#38bdf8',
-          deep: '#0ea5e9',
-          dim: 'rgba(56, 189, 248, 0.12)',
+          deep: '#0ea5e9', // primary buttons
+          premium: '#0284c7',
+          dim: 'rgba(56, 189, 248, 0.06)', // banner tint (col-standard)
+          soft: 'rgba(56, 189, 248, 0.12)',
           border: 'rgba(56, 189, 248, 0.35)',
         },
       },
