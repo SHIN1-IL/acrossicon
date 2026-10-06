@@ -26,8 +26,7 @@ export function ConfirmGenerateModal({
 }: ConfirmGenerateModalProps) {
   if (!open) return null;
 
-  const providerLabel =
-    estimate.provider === 'openai' ? 'OpenAI gpt-image-1' : 'Google Imagen 3';
+  const providerLabel = 'AcrossIcon AI';
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-4 animate-fade-in">

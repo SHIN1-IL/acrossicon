@@ -39,7 +39,7 @@ npm run build:web
 
 Serve via FastAPI (`backend/`) → `https://acrossicon.onrender.com/app/`
 
-Settings: License key + OpenAI/Google API Key (server URL auto on web).
+Settings: License key only (OpenAI key lives on the Render server).
 
 ## Dev
 

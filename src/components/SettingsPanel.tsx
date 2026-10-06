@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import { Eye, EyeOff, KeyRound, X } from 'lucide-react';
-import { AiProvider, AppSettings, Locale } from '@/types';
-import { maskApiKey } from '@/lib/storage';
+import { useEffect, useState } from 'react';
+import { KeyRound, X } from 'lucide-react';
+import { AppSettings, Locale } from '@/types';
 import { t } from '@/i18n';
 
 interface SettingsPanelProps {
@@ -9,7 +8,7 @@ interface SettingsPanelProps {
   settings: AppSettings;
   onClose: () => void;
   onSave: (settings: AppSettings) => Promise<void>;
-  /** Web app uses same-origin API — hide server URL field. */
+  /** Same-origin web app — hide license server URL. */
   hideApiBaseUrl?: boolean;
 }
 
@@ -21,15 +20,12 @@ export function SettingsPanel({
   hideApiBaseUrl = false,
 }: SettingsPanelProps) {
   const [draft, setDraft] = useState<AppSettings>(settings);
-  const [showKey, setShowKey] = useState(false);
   const [saving, setSaving] = useState(false);
-  const apiKeyRef = useRef<HTMLInputElement>(null);
   const locale = draft.locale;
 
   useEffect(() => {
     if (open) {
       setDraft(settings);
-      setShowKey(false);
     }
   }, [open, settings]);
 
@@ -38,13 +34,10 @@ export function SettingsPanel({
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Password autofill often skips React onChange — read DOM value on save.
-      const typedKey = (apiKeyRef.current?.value ?? draft.apiKey).trim();
-      // Empty field keeps the previously saved key (common “dots look filled” case).
-      const apiKey = typedKey || settings.apiKey.trim();
       const next: AppSettings = {
         ...draft,
-        apiKey,
+        provider: 'openai',
+        apiKey: '',
         licenseKey: draft.licenseKey.trim().toUpperCase(),
         apiBaseUrl: draft.apiBaseUrl.trim(),
       };
@@ -99,72 +92,6 @@ export function SettingsPanel({
               <option value="ko">한국어</option>
               <option value="en">English</option>
             </select>
-          </label>
-
-          <label className="block space-y-1.5">
-            <span className="text-xs font-medium text-zinc-400">
-              {t(locale, 'settings.provider')}
-            </span>
-            <select
-              value={draft.provider}
-              onChange={(e) =>
-                setDraft((prev) => ({ ...prev, provider: e.target.value as AiProvider }))
-              }
-              className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm text-zinc-100 outline-none focus:border-sky-500/60"
-            >
-              <option value="openai">OpenAI (gpt-image-1)</option>
-              <option value="google">Google (Imagen 3)</option>
-            </select>
-          </label>
-
-          <label className="block space-y-1.5">
-            <span className="text-xs font-medium text-zinc-400">
-              {t(locale, 'settings.apiKey')}
-            </span>
-            <div className="relative">
-              <input
-                ref={apiKeyRef}
-                type={showKey ? 'text' : 'password'}
-                value={draft.apiKey}
-                onChange={(e) =>
-                  setDraft((prev) => ({ ...prev, apiKey: e.target.value }))
-                }
-                onInput={(e) =>
-                  setDraft((prev) => ({
-                    ...prev,
-                    apiKey: (e.target as HTMLInputElement).value,
-                  }))
-                }
-                placeholder={
-                  settings.apiKey
-                    ? t(locale, 'settings.apiKeyKeepPlaceholder')
-                    : draft.provider === 'openai'
-                      ? 'sk-...'
-                      : 'AIza...'
-                }
-                autoComplete="new-password"
-                name="acrossicon-openai-key"
-                spellCheck={false}
-                className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 pr-10 font-mono text-sm text-zinc-100 outline-none focus:border-sky-500/60"
-              />
-              <button
-                type="button"
-                onClick={() => setShowKey((v) => !v)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-zinc-500 hover:text-zinc-300"
-                aria-label={showKey ? 'Hide key' : 'Show key'}
-              >
-                {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-            {settings.apiKey && (
-              <p className="text-[11px] text-zinc-500">
-                {t(locale, 'settings.saved')}:{' '}
-                <span className="font-mono">{maskApiKey(settings.apiKey)}</span>
-              </p>
-            )}
-            <p className="text-[11px] leading-relaxed text-zinc-500">
-              {t(locale, 'settings.keyHint')}
-            </p>
           </label>
 
           <label className="block space-y-1.5">

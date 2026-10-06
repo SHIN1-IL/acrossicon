@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from admin_routes import router as admin_router
+from ai_keys import configured_providers, resolve_provider_key
 from database import init_db
 from generate_service import generate_batch
 from license_service import (
@@ -58,8 +59,7 @@ class LicenseConsumeRequest(BaseModel):
 
 class GenerateRequest(BaseModel):
     license_key: str
-    provider: str = Field(pattern="^(openai|google)$")
-    api_key: str
+    provider: str = "openai"
     prompts: List[str]
     brand_name: str = ""
     size: str = "1024x1024"
@@ -70,7 +70,13 @@ class GenerateRequest(BaseModel):
 
 @app.get("/health")
 def health():
-    return {"ok": True, "service": "acrossicon"}
+    ai = configured_providers()
+    return {"ok": True, "service": "acrossicon", "ai_ready": ai["ready"]}
+
+
+@app.get("/api/ai-status")
+def ai_status():
+    return configured_providers()
 
 
 @app.get("/api/plans")
@@ -130,16 +136,17 @@ def api_license_consume(req: LicenseConsumeRequest):
 
 @app.post("/api/generate")
 def api_generate(req: GenerateRequest):
-    """Web app generation: license check → AI proxy → quota consume."""
+    """License check → server AI key → quota consume (customer never sends API key)."""
     need = max(1, min(len([p for p in req.prompts if p and p.strip()]), 4))
     status = check_quota(req.license_key, need=need)
     if not status.valid:
         raise HTTPException(status_code=403, detail=status.message)
 
     try:
+        provider, api_key = resolve_provider_key(req.provider)
         result = generate_batch(
-            provider=req.provider,
-            api_key=req.api_key,
+            provider=provider,
+            api_key=api_key,
             prompts=req.prompts,
             brand_name=req.brand_name,
             size=req.size,
@@ -148,7 +155,7 @@ def api_generate(req: GenerateRequest):
             input_fidelity=req.input_fidelity,
         )
     except ValueError as exc:
-        raise HTTPException(status_code=422, detail=str(exc)) from exc
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
     except Exception as exc:  # noqa: BLE001
         log_request(req.license_key, "generate", success=False)
         raise HTTPException(status_code=500, detail=str(exc)) from exc
@@ -159,6 +166,7 @@ def api_generate(req: GenerateRequest):
         log_request(req.license_key, "generate", success=True)
     after = check_license(req.license_key)
     result["quota"] = _quota_payload(after)
+    result["provider_used"] = provider
     return result
 
 
@@ -178,7 +186,6 @@ def ops_index():
 def app_index():
     index = WEB_DIR / "index.html"
     if not index.exists():
-        # Vite outputs web.html renamed — accept either
         alt = WEB_DIR / "web.html"
         if alt.exists():
             return FileResponse(alt)

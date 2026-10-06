@@ -13,7 +13,6 @@ import { toPersistedDataUrl } from '@/lib/imageActions';
 import {
   LicenseApiError,
   LicenseQuota,
-  checkLicenseQuota,
   consumeLicenseQuota,
   fetchLicenseStatus,
   formatQuota,
@@ -76,18 +75,12 @@ export default function App({ runtime = 'extension' }: AppProps) {
   const costEstimate = useMemo(
     () =>
       estimateGenerationCost(
-        settings.provider,
+        'openai',
         settings.imageCount,
         settings.imageSize,
-        { mode: form.mode, isUploadEdit },
+        { mode: form.mode, isUploadEdit, managed: true },
       ),
-    [
-      settings.provider,
-      settings.imageCount,
-      settings.imageSize,
-      form.mode,
-      isUploadEdit,
-    ],
+    [settings.imageCount, settings.imageSize, form.mode, isUploadEdit],
   );
 
   const refreshQuota = async (next: AppSettings, announce = false) => {
@@ -135,9 +128,6 @@ export default function App({ runtime = 'extension' }: AppProps) {
         push(t(storedSettings.locale, 'toast.needLicenseKey'), 'info');
       } else {
         await refreshQuota(storedSettings, false);
-      }
-      if (!storedSettings.apiKey) {
-        push(t(storedSettings.locale, 'toast.apiKeyHint'), 'info');
       }
     })();
     return () => {
@@ -189,11 +179,6 @@ export default function App({ runtime = 'extension' }: AppProps) {
       setSettingsOpen(true);
       return;
     }
-    if (!settings.apiKey) {
-      push(t(locale, 'toast.needKey'), 'error');
-      setSettingsOpen(true);
-      return;
-    }
 
     if (
       form.mode === 'product' &&
@@ -206,11 +191,6 @@ export default function App({ runtime = 'extension' }: AppProps) {
     }
 
     if (form.imageSource === 'upload') {
-      if (settings.provider !== 'openai') {
-        push(t(locale, 'toast.needOpenAI'), 'error');
-        setSettingsOpen(true);
-        return;
-      }
       if (!form.sourceImageDataUrl) {
         push(t(locale, 'toast.needUpload'), 'error');
         return;
@@ -240,17 +220,9 @@ export default function App({ runtime = 'extension' }: AppProps) {
         : ('low' as const);
 
     try {
-      if (!isWeb) {
-        await checkLicenseQuota(
-          settings.apiBaseUrl,
-          settings.licenseKey,
-          prompts.length,
-        );
-      }
-
       const result = await generateImages({
-        provider: settings.provider,
-        apiKey: settings.apiKey,
+        provider: 'openai',
+        apiKey: '',
         prompts,
         brandName: titleForMode(form),
         size: settings.imageSize,
@@ -261,7 +233,7 @@ export default function App({ runtime = 'extension' }: AppProps) {
         inputFidelity: isUploadEdit ? fidelity : undefined,
         licenseKey: settings.licenseKey,
         apiBaseUrl: settings.apiBaseUrl,
-        useServerProxy: isWeb,
+        useServerProxy: true,
       });
 
       setResults(result.logos);
@@ -346,7 +318,7 @@ export default function App({ runtime = 'extension' }: AppProps) {
       <div className={shellClass}>
         <Header
           locale={locale}
-          hasApiKey={Boolean(settings.apiKey)}
+          hasApiKey={Boolean(settings.licenseKey.trim())}
           onOpenSettings={() => setSettingsOpen(true)}
           onLocaleChange={handleLocaleChange}
           planLabel={quota?.plan_label || undefined}
@@ -356,10 +328,10 @@ export default function App({ runtime = 'extension' }: AppProps) {
         <main className="flex min-h-0 flex-1 flex-col overflow-y-auto">
           <InputForm
             locale={locale}
-            provider={settings.provider}
+            provider="openai"
             values={form}
             loading={loading}
-            hasApiKey={Boolean(settings.apiKey)}
+            hasApiKey={Boolean(settings.licenseKey.trim())}
             costLabel={costEstimate.label}
             imageCount={settings.imageCount}
             imageSize={settings.imageSize}

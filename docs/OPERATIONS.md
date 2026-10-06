@@ -47,6 +47,8 @@ uvicorn main:app --reload --port 8000
 | Start Command | `uvicorn main:app --host 0.0.0.0 --port $PORT` |
 | Disk mount | `/var/data` (1 GB) |
 | Env `ADMIN_TOKEN` | 시크릿 (직접 입력) |
+| Env `OPENAI_API_KEY` | **필수** — 고객 생성용 (당신 계정 키) |
+| Env `GOOGLE_API_KEY` | 선택 (없으면 OpenAI만 사용) |
 | Env `DATABASE_PATH` | `/var/data/acrossicon.db` |
 | Env `LICENSE_VAULT_PATH` | `/var/data/licenses.vault.json` |
 
@@ -54,20 +56,19 @@ uvicorn main:app --reload --port 8000
 
 배포 후 확인:
 - 웹앱: https://acrossicon.onrender.com/app/  
-- 헬스: https://acrossicon.onrender.com/health  
+- 헬스: https://acrossicon.onrender.com/health (`ai_ready: true` 여야 생성 가능)  
 - 운영 콘솔: https://acrossicon.onrender.com/ops/
 
-## 확장 설정
+## 고객 사용 (3분 블로그형)
+
+1. https://acrossicon.onrender.com/app/ 접속  
+2. 설정 → **라이선스 키만** 입력 → 저장  
+3. 생성 (AI 비용은 서버 `OPENAI_API_KEY`로 청구, 고객 API 키 불필요)
+
+## 확장 설정 (선택)
 
 1. Side Panel → 설정  
 2. **라이선스 키** 입력  
-3. **라이선스 서버 URL** (비우면 `https://acrossicon.onrender.com`, 로컬이면 `http://127.0.0.1:8000`)  
-4. OpenAI/Google API Key 저장  
+3. **라이선스 서버 URL** (비우면 `https://acrossicon.onrender.com`)  
 
-생성 시 서버에서 한도를 검사하고, 성공한 **장수**만큼 차감합니다.
-
-## 고객 웹앱
-
-1. https://acrossicon.onrender.com/app/ 접속  
-2. 설정 → 라이선스 키 + API 키 저장  
-3. 생성 (서버가 AI API를 대리 호출 — 브라우저 CORS 우회)
+생성은 서버 프록시를 사용합니다. 고객 API 키는 받지 않습니다.

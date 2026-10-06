@@ -1,6 +1,7 @@
-# AcrossIcon API + 운영 콘솔 (Render)
+# AcrossIcon API + 운영 콘솔 + 고객 웹앱 (Render)
 # New Web Service → name: acrossicon, rootDir: backend
-# Expected URL: https://acrossicon.onrender.com
+# Customer URL: https://acrossicon.onrender.com/app/
+# Ops URL: https://acrossicon.onrender.com/ops/
 
 services:
   - type: web
@@ -11,6 +12,10 @@ services:
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: ADMIN_TOKEN
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GOOGLE_API_KEY
         sync: false
       - key: DATABASE_PATH
         value: /var/data/acrossicon.db

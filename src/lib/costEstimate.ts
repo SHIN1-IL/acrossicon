@@ -24,10 +24,26 @@ export function estimateGenerationCost(
   provider: AiProvider,
   count: number,
   size: ImageSize,
-  options?: { mode?: GenerationMode; isUploadEdit?: boolean },
+  options?: {
+    mode?: GenerationMode;
+    isUploadEdit?: boolean;
+    /** Hosted SaaS: customer pays via subscription quota, not their API bill. */
+    managed?: boolean;
+  },
 ): CostEstimate {
   const safeCount = Math.min(Math.max(count, 1), 4);
   const isUpload = Boolean(options?.isUploadEdit);
+
+  if (options?.managed) {
+    return {
+      provider: 'openai',
+      count: safeCount,
+      unitUsd: 0,
+      totalUsd: 0,
+      label: `${safeCount}장`,
+      note: '구독 한도에서 차감됩니다 (별도 API 키 불필요)',
+    };
+  }
 
   if (provider === 'openai') {
     const base = OPENAI_GPT_IMAGE_MEDIUM_USD[size];

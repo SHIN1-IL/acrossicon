@@ -1,5 +1,5 @@
 import { AiProvider, GeneratedLogo, GenerationMode, ImageSize } from '@/types';
-import { isWebRuntime, normalizeApiBase } from '@/lib/config';
+import { normalizeApiBase } from '@/lib/config';
 import { LicenseApiError } from '@/lib/licenseApi';
 
 export class ApiError extends Error {
@@ -269,9 +269,6 @@ async function generateViaServer(options: GenerateOptions): Promise<GenerateResu
   if (!licenseKey) {
     throw new ApiError('라이선스 키를 설정에서 등록해 주세요.');
   }
-  if (!options.apiKey.trim()) {
-    throw new ApiError('API Key가 등록되지 않았습니다. 설정에서 Key를 입력해 주세요.');
-  }
   if (safeCount === 0) {
     throw new ApiError('생성할 프롬프트가 없습니다.');
   }
@@ -284,8 +281,7 @@ async function generateViaServer(options: GenerateOptions): Promise<GenerateResu
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         license_key: licenseKey,
-        provider: options.provider,
-        api_key: options.apiKey,
+        provider: options.provider || 'openai',
         prompts: prompts.slice(0, safeCount),
         brand_name: options.brandName,
         size: options.size,
@@ -345,7 +341,8 @@ async function generateViaServer(options: GenerateOptions): Promise<GenerateResu
 }
 
 export async function generateImages(options: GenerateOptions): Promise<GenerateResult> {
-  const useProxy = options.useServerProxy ?? isWebRuntime();
+  // Hosted product always uses server AI keys (AutoBlog-style).
+  const useProxy = options.useServerProxy ?? true;
   if (useProxy) {
     return generateViaServer(options);
   }
