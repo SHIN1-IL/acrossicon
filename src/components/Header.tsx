@@ -47,7 +47,7 @@ export function Header({
         <div className="justify-self-center">
           {quota && dailyLeft !== null && monthlyLeft !== null ? (
             <div
-              className="flex flex-col items-center gap-1"
+              className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1"
               role="status"
               aria-label={`${planLabel} ${t(locale, 'header.quotaToday')} ${dailyLeft}/${quota.daily_limit} ${t(locale, 'header.quotaMonth')} ${monthlyLeft}/${quota.monthly_limit}`}
             >
@@ -56,22 +56,19 @@ export function Header({
                   {planLabel}
                 </span>
               ) : null}
-
-              <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1">
-                <QuotaBlock
-                  label={t(locale, 'header.quotaToday')}
-                  left={dailyLeft}
-                  limit={quota.daily_limit}
-                />
-                <span className="hidden text-ink-dim sm:inline" aria-hidden>
-                  ·
-                </span>
-                <QuotaBlock
-                  label={t(locale, 'header.quotaMonth')}
-                  left={monthlyLeft}
-                  limit={quota.monthly_limit}
-                />
-              </div>
+              <QuotaBlock
+                label={t(locale, 'header.quotaToday')}
+                left={dailyLeft}
+                limit={quota.daily_limit}
+              />
+              <span className="hidden text-ink-dim sm:inline" aria-hidden>
+                ·
+              </span>
+              <QuotaBlock
+                label={t(locale, 'header.quotaMonth')}
+                left={monthlyLeft}
+                limit={quota.monthly_limit}
+              />
             </div>
           ) : (
             <div className="h-8" aria-hidden />
