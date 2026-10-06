@@ -143,7 +143,7 @@ const ko: Dict = {
     '운영자가 발급한 키를 입력하세요. 스탠다드 일10/월60 · 프리미엄 일20/월120.',
   'settings.apiBaseUrl': '라이선스 서버 URL',
   'settings.apiBaseUrlHint':
-    '비우면 http://127.0.0.1:8000 을 사용합니다. Render 배포 후 주소를 넣으세요.',
+    '비우면 https://acrossicon.onrender.com 을 사용합니다. 로컬 백엔드면 http://127.0.0.1:8000',
   'settings.count': '생성 개수',
   'settings.countUnit': '{n}장',
   'settings.size': '해상도',
@@ -327,7 +327,7 @@ const en: Dict = {
     'Enter the key from your operator. Standard 10/day · 60/mo · Premium 20/day · 120/mo.',
   'settings.apiBaseUrl': 'License server URL',
   'settings.apiBaseUrlHint':
-    'Defaults to http://127.0.0.1:8000 when empty. Set your Render URL after deploy.',
+    'Defaults to https://acrossicon.onrender.com. Use http://127.0.0.1:8000 for local backend.',
   'settings.count': 'Image count',
   'settings.countUnit': '{n}',
   'settings.size': 'Resolution',

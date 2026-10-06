@@ -1,4 +1,6 @@
 import { AiProvider, GeneratedLogo, GenerationMode, ImageSize } from '@/types';
+import { isWebRuntime, normalizeApiBase } from '@/lib/config';
+import { LicenseApiError } from '@/lib/licenseApi';
 
 export class ApiError extends Error {
   constructor(
@@ -19,6 +21,11 @@ interface GenerateOptions {
   mode?: GenerationMode;
   sourceImageDataUrl?: string;
   inputFidelity?: 'high' | 'low';
+  /** Required for web proxy + optional for extension quota path. */
+  licenseKey?: string;
+  apiBaseUrl?: string;
+  /** When true, use server /api/generate (CORS-safe). Default: web runtime. */
+  useServerProxy?: boolean;
 }
 
 export interface GenerateResult {
@@ -27,6 +34,9 @@ export interface GenerateResult {
   succeeded: number;
   failed: number;
   errors: string[];
+  /** Present when generated via server proxy (quota already consumed). */
+  quotaConsumedOnServer?: boolean;
+  quota?: unknown;
 }
 
 interface OpenAiImageResponse {
@@ -36,6 +46,7 @@ interface OpenAiImageResponse {
 
 function toApiError(error: unknown): ApiError {
   if (error instanceof ApiError) return error;
+  if (error instanceof LicenseApiError) return new ApiError(error.message, error.status);
   if (error instanceof TypeError) {
     return new ApiError('네트워크 오류가 발생했습니다. 연결 상태를 확인해 주세요.');
   }
@@ -110,7 +121,6 @@ async function editOpenAiImage(
   form.append('size', size);
   form.append('quality', 'medium');
   form.append('output_format', 'png');
-  // gpt-image-2 always uses high input fidelity; omit the param.
   if (model !== 'gpt-image-2') {
     form.append('input_fidelity', inputFidelity);
   }
@@ -252,7 +262,94 @@ async function generateOne(
   };
 }
 
+async function generateViaServer(options: GenerateOptions): Promise<GenerateResult> {
+  const prompts = options.prompts.filter((p) => p.trim().length > 0);
+  const safeCount = Math.min(Math.max(prompts.length, 0), 4);
+  const licenseKey = (options.licenseKey || '').trim();
+  if (!licenseKey) {
+    throw new ApiError('라이선스 키를 설정에서 등록해 주세요.');
+  }
+  if (!options.apiKey.trim()) {
+    throw new ApiError('API Key가 등록되지 않았습니다. 설정에서 Key를 입력해 주세요.');
+  }
+  if (safeCount === 0) {
+    throw new ApiError('생성할 프롬프트가 없습니다.');
+  }
+
+  const base = normalizeApiBase(options.apiBaseUrl);
+  let res: Response;
+  try {
+    res = await fetch(`${base}/api/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        license_key: licenseKey,
+        provider: options.provider,
+        api_key: options.apiKey,
+        prompts: prompts.slice(0, safeCount),
+        brand_name: options.brandName,
+        size: options.size,
+        mode: options.mode,
+        source_image_data_url: options.sourceImageDataUrl,
+        input_fidelity: options.inputFidelity || 'low',
+      }),
+    });
+  } catch {
+    throw new ApiError('라이선스 서버에 연결할 수 없습니다. 서버 주소·네트워크를 확인해 주세요.');
+  }
+
+  const data = (await res.json().catch(() => ({}))) as {
+    detail?: string | { msg?: string }[];
+    logos?: GeneratedLogo[];
+    requested?: number;
+    succeeded?: number;
+    failed?: number;
+    errors?: string[];
+    quota?: unknown;
+  };
+
+  if (!res.ok) {
+    const detail = data.detail;
+    const message =
+      typeof detail === 'string'
+        ? detail
+        : Array.isArray(detail)
+          ? detail
+              .map((d) =>
+                typeof d === 'object' && d && 'msg' in d ? String(d.msg) : String(d),
+              )
+              .join(', ')
+          : `생성 오류 (${res.status})`;
+    throw new ApiError(message, res.status);
+  }
+
+  const logos = (data.logos || []).map((logo, index) => ({
+    ...logo,
+    id: logo.id || `${Date.now()}-${index}`,
+    createdAt: logo.createdAt || Date.now(),
+  }));
+
+  if (logos.length === 0) {
+    throw new ApiError(data.errors?.[0] || '이미지 생성에 실패했습니다.');
+  }
+
+  return {
+    logos,
+    requested: data.requested ?? safeCount,
+    succeeded: data.succeeded ?? logos.length,
+    failed: data.failed ?? 0,
+    errors: data.errors || [],
+    quotaConsumedOnServer: true,
+    quota: data.quota,
+  };
+}
+
 export async function generateImages(options: GenerateOptions): Promise<GenerateResult> {
+  const useProxy = options.useServerProxy ?? isWebRuntime();
+  if (useProxy) {
+    return generateViaServer(options);
+  }
+
   const prompts = options.prompts.filter((p) => p.trim().length > 0);
   const safeCount = Math.min(Math.max(prompts.length, 0), 4);
 

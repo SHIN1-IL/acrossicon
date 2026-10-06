@@ -24,14 +24,22 @@ npm install
 npm run build
 ```
 
-## Load in Chrome
+## Load in Chrome (optional)
 
 1. Open `chrome://extensions`
 2. Enable **Developer mode**
 3. Click **Load unpacked**
 4. Select the `dist` folder
 
-Settings: API Key + **License key** (+ optional license server URL).
+## Customer web app (recommended)
+
+```bash
+npm run build:web
+```
+
+Serve via FastAPI (`backend/`) → `https://acrossicon.onrender.com/app/`
+
+Settings: License key + OpenAI/Google API Key (server URL auto on web).
 
 ## Dev
 

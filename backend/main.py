@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import List, Optional
 
 import env_loader  # noqa: F401
 from fastapi import FastAPI, HTTPException
@@ -10,6 +11,7 @@ from pydantic import BaseModel, Field
 
 from admin_routes import router as admin_router
 from database import init_db
+from generate_service import generate_batch
 from license_service import (
     check_license,
     check_quota,
@@ -21,6 +23,7 @@ from license_service import (
 from license_vault import restore_vault
 
 OPS_DIR = Path(__file__).parent / "ops"
+WEB_DIR = Path(__file__).parent / "web"
 
 
 @asynccontextmanager
@@ -53,6 +56,18 @@ class LicenseConsumeRequest(BaseModel):
     count: int = Field(default=1, ge=1, le=4)
 
 
+class GenerateRequest(BaseModel):
+    license_key: str
+    provider: str = Field(pattern="^(openai|google)$")
+    api_key: str
+    prompts: List[str]
+    brand_name: str = ""
+    size: str = "1024x1024"
+    mode: Optional[str] = None
+    source_image_data_url: Optional[str] = None
+    input_fidelity: str = Field(default="low", pattern="^(high|low)$")
+
+
 @app.get("/health")
 def health():
     return {"ok": True, "service": "acrossicon"}
@@ -76,12 +91,17 @@ def plans():
     }
 
 
-@app.post("/api/license/check")
-def api_license_check(req: LicenseCheckRequest):
-    status = check_quota(req.license_key, need=req.need)
+def _quota_payload(status):
     payload = status.to_dict()
     if status.plan:
         payload["plan_label"] = plan_label(status.plan)
+    return payload
+
+
+@app.post("/api/license/check")
+def api_license_check(req: LicenseCheckRequest):
+    status = check_quota(req.license_key, need=req.need)
+    payload = _quota_payload(status)
     if not status.valid:
         raise HTTPException(status_code=403, detail=status.message)
     return payload
@@ -91,9 +111,7 @@ def api_license_check(req: LicenseCheckRequest):
 def api_license_status(req: LicenseCheckRequest):
     """등록 시 상태 조회 (한도 초과여도 정보 반환)."""
     status = check_license(req.license_key)
-    payload = status.to_dict()
-    if status.plan:
-        payload["plan_label"] = plan_label(status.plan)
+    payload = _quota_payload(status)
     if not status.valid:
         raise HTTPException(status_code=403, detail=status.message)
     return payload
@@ -107,14 +125,46 @@ def api_license_consume(req: LicenseConsumeRequest):
     increment_usage(req.license_key, req.count)
     log_request(req.license_key, "consume", success=True)
     after = check_license(req.license_key)
-    payload = after.to_dict()
-    payload["plan_label"] = plan_label(after.plan) if after.plan else ""
-    return payload
+    return _quota_payload(after)
+
+
+@app.post("/api/generate")
+def api_generate(req: GenerateRequest):
+    """Web app generation: license check → AI proxy → quota consume."""
+    need = max(1, min(len([p for p in req.prompts if p and p.strip()]), 4))
+    status = check_quota(req.license_key, need=need)
+    if not status.valid:
+        raise HTTPException(status_code=403, detail=status.message)
+
+    try:
+        result = generate_batch(
+            provider=req.provider,
+            api_key=req.api_key,
+            prompts=req.prompts,
+            brand_name=req.brand_name,
+            size=req.size,
+            mode=req.mode,
+            source_image_data_url=req.source_image_data_url,
+            input_fidelity=req.input_fidelity,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except Exception as exc:  # noqa: BLE001
+        log_request(req.license_key, "generate", success=False)
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+    succeeded = int(result.get("succeeded") or 0)
+    if succeeded > 0:
+        increment_usage(req.license_key, succeeded)
+        log_request(req.license_key, "generate", success=True)
+    after = check_license(req.license_key)
+    result["quota"] = _quota_payload(after)
+    return result
 
 
 @app.get("/")
 def root():
-    return RedirectResponse(url="/ops/")
+    return RedirectResponse(url="/app/")
 
 
 @app.get("/ops")
@@ -123,4 +173,22 @@ def ops_index():
     return FileResponse(OPS_DIR / "index.html")
 
 
+@app.get("/app")
+@app.get("/app/")
+def app_index():
+    index = WEB_DIR / "index.html"
+    if not index.exists():
+        # Vite outputs web.html renamed — accept either
+        alt = WEB_DIR / "web.html"
+        if alt.exists():
+            return FileResponse(alt)
+        raise HTTPException(
+            status_code=503,
+            detail="웹앱이 아직 빌드되지 않았습니다. npm run build:web 후 재배포하세요.",
+        )
+    return FileResponse(index)
+
+
 app.mount("/ops", StaticFiles(directory=str(OPS_DIR), html=True), name="ops")
+if WEB_DIR.exists():
+    app.mount("/app", StaticFiles(directory=str(WEB_DIR), html=True), name="web")

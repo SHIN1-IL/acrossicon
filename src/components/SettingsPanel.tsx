@@ -9,9 +9,17 @@ interface SettingsPanelProps {
   settings: AppSettings;
   onClose: () => void;
   onSave: (settings: AppSettings) => Promise<void>;
+  /** Web app uses same-origin API — hide server URL field. */
+  hideApiBaseUrl?: boolean;
 }
 
-export function SettingsPanel({ open, settings, onClose, onSave }: SettingsPanelProps) {
+export function SettingsPanel({
+  open,
+  settings,
+  onClose,
+  onSave,
+  hideApiBaseUrl = false,
+}: SettingsPanelProps) {
   const [draft, setDraft] = useState<AppSettings>(settings);
   const [showKey, setShowKey] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -155,25 +163,27 @@ export function SettingsPanel({ open, settings, onClose, onSave }: SettingsPanel
             </p>
           </label>
 
-          <label className="block space-y-1.5">
-            <span className="text-xs font-medium text-zinc-400">
-              {t(locale, 'settings.apiBaseUrl')}
-            </span>
-            <input
-              type="url"
-              value={draft.apiBaseUrl}
-              onChange={(e) =>
-                setDraft((prev) => ({ ...prev, apiBaseUrl: e.target.value.trim() }))
-              }
-              placeholder="http://127.0.0.1:8000"
-              autoComplete="off"
-              spellCheck={false}
-              className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 font-mono text-xs text-zinc-100 outline-none focus:border-sky-500/60"
-            />
-            <p className="text-[11px] leading-relaxed text-zinc-500">
-              {t(locale, 'settings.apiBaseUrlHint')}
-            </p>
-          </label>
+          {!hideApiBaseUrl && (
+            <label className="block space-y-1.5">
+              <span className="text-xs font-medium text-zinc-400">
+                {t(locale, 'settings.apiBaseUrl')}
+              </span>
+              <input
+                type="url"
+                value={draft.apiBaseUrl}
+                onChange={(e) =>
+                  setDraft((prev) => ({ ...prev, apiBaseUrl: e.target.value.trim() }))
+                }
+                placeholder="https://acrossicon.onrender.com"
+                autoComplete="off"
+                spellCheck={false}
+                className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 font-mono text-xs text-zinc-100 outline-none focus:border-sky-500/60"
+              />
+              <p className="text-[11px] leading-relaxed text-zinc-500">
+                {t(locale, 'settings.apiBaseUrlHint')}
+              </p>
+            </label>
+          )}
 
           <label className="flex cursor-pointer items-start justify-between gap-3 rounded-lg border border-surface-border bg-surface px-3 py-3">
             <div>

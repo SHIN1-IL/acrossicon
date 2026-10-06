@@ -1,7 +1,10 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App';
-import '../index.css';
+import App from '@/sidepanel/App';
+import '@/index.css';
+
+document.documentElement.classList.add('acrossicon-web');
+document.body.classList.add('acrossicon-web');
 
 const root = document.getElementById('root');
 if (!root) {
@@ -10,6 +13,6 @@ if (!root) {
 
 createRoot(root).render(
   <StrictMode>
-    <App runtime="extension" />
+    <App runtime="web" />
   </StrictMode>,
 );

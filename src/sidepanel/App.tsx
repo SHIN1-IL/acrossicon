@@ -10,6 +10,14 @@ import { t } from '@/i18n';
 import { estimateGenerationCost } from '@/lib/costEstimate';
 import { ApiError, generateImages } from '@/lib/imageApi';
 import { toPersistedDataUrl } from '@/lib/imageActions';
+import {
+  LicenseApiError,
+  LicenseQuota,
+  checkLicenseQuota,
+  consumeLicenseQuota,
+  fetchLicenseStatus,
+  formatQuota,
+} from '@/lib/licenseApi';
 import { buildPromptVariants, titleForMode } from '@/lib/promptEngine';
 import {
   clearHistory,
@@ -38,7 +46,14 @@ async function persistLogos(logos: GeneratedLogo[]): Promise<GeneratedLogo[]> {
   );
 }
 
-export default function App() {
+export type AppRuntime = 'extension' | 'web';
+
+interface AppProps {
+  runtime?: AppRuntime;
+}
+
+export default function App({ runtime = 'extension' }: AppProps) {
+  const isWeb = runtime === 'web';
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [form, setForm] = useState<CreatorFormValues>(INITIAL_FORM);
   const [results, setResults] = useState<GeneratedLogo[]>([]);
@@ -48,6 +63,7 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [ready, setReady] = useState(false);
+  const [quota, setQuota] = useState<LicenseQuota | null>(null);
   const { toasts, push, dismiss } = useToast();
   const locale = settings.locale;
 
@@ -74,6 +90,35 @@ export default function App() {
     ],
   );
 
+  const refreshQuota = async (next: AppSettings, announce = false) => {
+    if (!next.licenseKey.trim()) {
+      setQuota(null);
+      return;
+    }
+    try {
+      const status = await fetchLicenseStatus(next.apiBaseUrl, next.licenseKey);
+      setQuota(status);
+      if (announce) {
+        push(
+          t(next.locale, 'toast.licenseOk', {
+            plan: status.plan_label || status.plan,
+            quota: formatQuota(status),
+          }),
+          'success',
+        );
+      }
+    } catch (error) {
+      setQuota(null);
+      if (announce) {
+        const message =
+          error instanceof LicenseApiError
+            ? error.message
+            : t(next.locale, 'toast.licenseFail');
+        push(message, 'error');
+      }
+    }
+  };
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -85,6 +130,12 @@ export default function App() {
       setSettings(storedSettings);
       setHistory(storedHistory);
       setReady(true);
+      if (!storedSettings.licenseKey.trim()) {
+        setSettingsOpen(true);
+        push(t(storedSettings.locale, 'toast.needLicenseKey'), 'info');
+      } else {
+        await refreshQuota(storedSettings, false);
+      }
       if (!storedSettings.apiKey) {
         push(t(storedSettings.locale, 'toast.apiKeyHint'), 'info');
       }
@@ -92,12 +143,14 @@ export default function App() {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [push]);
 
   const handleSaveSettings = async (next: AppSettings) => {
     await saveSettings(next);
     setSettings(next);
     push(t(next.locale, 'settings.savedToast'), 'success');
+    await refreshQuota(next, Boolean(next.licenseKey.trim()));
   };
 
   const handleLocaleChange = async (nextLocale: Locale) => {
@@ -131,6 +184,11 @@ export default function App() {
   };
 
   const handleRequestGenerate = () => {
+    if (!settings.licenseKey.trim()) {
+      push(t(locale, 'toast.needLicenseKey'), 'error');
+      setSettingsOpen(true);
+      return;
+    }
     if (!settings.apiKey) {
       push(t(locale, 'toast.needKey'), 'error');
       setSettingsOpen(true);
@@ -182,6 +240,14 @@ export default function App() {
         : ('low' as const);
 
     try {
+      if (!isWeb) {
+        await checkLicenseQuota(
+          settings.apiBaseUrl,
+          settings.licenseKey,
+          prompts.length,
+        );
+      }
+
       const result = await generateImages({
         provider: settings.provider,
         apiKey: settings.apiKey,
@@ -193,9 +259,27 @@ export default function App() {
           ? form.sourceImageDataUrl
           : undefined,
         inputFidelity: isUploadEdit ? fidelity : undefined,
+        licenseKey: settings.licenseKey,
+        apiBaseUrl: settings.apiBaseUrl,
+        useServerProxy: isWeb,
       });
 
       setResults(result.logos);
+
+      if (result.quotaConsumedOnServer && result.quota) {
+        setQuota(result.quota as LicenseQuota);
+      } else if (result.succeeded > 0) {
+        try {
+          const after = await consumeLicenseQuota(
+            settings.apiBaseUrl,
+            settings.licenseKey,
+            result.succeeded,
+          );
+          setQuota(after);
+        } catch {
+          push(t(locale, 'toast.quotaConsumeFail'), 'info');
+        }
+      }
 
       try {
         const persisted = await persistLogos(result.logos);
@@ -222,7 +306,7 @@ export default function App() {
       }
     } catch (error) {
       const message =
-        error instanceof ApiError
+        error instanceof ApiError || error instanceof LicenseApiError
           ? error.message
           : error instanceof Error
             ? error.message
@@ -253,67 +337,76 @@ export default function App() {
     );
   }
 
+  const shellClass = isWeb
+    ? 'mx-auto flex h-full w-full max-w-3xl flex-col bg-surface shadow-2xl shadow-black/40 ring-1 ring-surface-border/60 md:my-4 md:h-[calc(100%-2rem)] md:rounded-2xl'
+    : 'flex h-full min-w-panel flex-col bg-surface';
+
   return (
-    <div className="flex h-full min-w-panel flex-col bg-surface">
-      <Header
-        locale={locale}
-        hasApiKey={Boolean(settings.apiKey)}
-        onOpenSettings={() => setSettingsOpen(true)}
-        onLocaleChange={handleLocaleChange}
-      />
-
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-        <InputForm
+    <div className={isWeb ? 'h-full bg-gradient-to-b from-zinc-950 via-surface to-zinc-950' : 'h-full'}>
+      <div className={shellClass}>
+        <Header
           locale={locale}
-          provider={settings.provider}
-          values={form}
-          loading={loading}
           hasApiKey={Boolean(settings.apiKey)}
-          costLabel={costEstimate.label}
-          imageCount={settings.imageCount}
-          imageSize={settings.imageSize}
-          promptVariation={settings.promptVariation}
-          onPromptVariationChange={handlePromptVariationChange}
-          onImageCountChange={handleImageCountChange}
-          onImageSizeChange={handleImageSizeChange}
-          onSuggestImageSize={handleSuggestImageSize}
-          onChange={setForm}
-          onSubmit={handleRequestGenerate}
           onOpenSettings={() => setSettingsOpen(true)}
+          onLocaleChange={handleLocaleChange}
+          planLabel={quota?.plan_label || undefined}
+          quotaLabel={formatQuota(quota)}
         />
-        <ResultGallery
+
+        <main className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+          <InputForm
+            locale={locale}
+            provider={settings.provider}
+            values={form}
+            loading={loading}
+            hasApiKey={Boolean(settings.apiKey)}
+            costLabel={costEstimate.label}
+            imageCount={settings.imageCount}
+            imageSize={settings.imageSize}
+            promptVariation={settings.promptVariation}
+            onPromptVariationChange={handlePromptVariationChange}
+            onImageCountChange={handleImageCountChange}
+            onImageSizeChange={handleImageSizeChange}
+            onSuggestImageSize={handleSuggestImageSize}
+            onChange={setForm}
+            onSubmit={handleRequestGenerate}
+            onOpenSettings={() => setSettingsOpen(true)}
+          />
+          <ResultGallery
+            locale={locale}
+            tab={galleryTab}
+            onTabChange={setGalleryTab}
+            results={results}
+            history={history}
+            loading={loading}
+            skeletonCount={settings.imageCount}
+            onToast={push}
+            onDeleteHistoryItem={handleDeleteHistoryItem}
+            onClearHistory={handleClearHistory}
+          />
+        </main>
+
+        <ConfirmGenerateModal
+          open={confirmOpen}
           locale={locale}
-          tab={galleryTab}
-          onTabChange={setGalleryTab}
-          results={results}
-          history={history}
-          loading={loading}
-          skeletonCount={settings.imageCount}
-          onToast={push}
-          onDeleteHistoryItem={handleDeleteHistoryItem}
-          onClearHistory={handleClearHistory}
+          title={titleForMode(form)}
+          estimate={costEstimate}
+          promptVariation={settings.promptVariation}
+          confirming={loading}
+          onCancel={() => setConfirmOpen(false)}
+          onConfirm={handleConfirmGenerate}
         />
-      </main>
 
-      <ConfirmGenerateModal
-        open={confirmOpen}
-        locale={locale}
-        title={titleForMode(form)}
-        estimate={costEstimate}
-        promptVariation={settings.promptVariation}
-        confirming={loading}
-        onCancel={() => setConfirmOpen(false)}
-        onConfirm={handleConfirmGenerate}
-      />
+        <SettingsPanel
+          open={settingsOpen}
+          settings={settings}
+          onClose={() => setSettingsOpen(false)}
+          onSave={handleSaveSettings}
+          hideApiBaseUrl={isWeb}
+        />
 
-      <SettingsPanel
-        open={settingsOpen}
-        settings={settings}
-        onClose={() => setSettingsOpen(false)}
-        onSave={handleSaveSettings}
-      />
-
-      <Toast toasts={toasts} onDismiss={dismiss} />
+        <Toast toasts={toasts} onDismiss={dismiss} />
+      </div>
     </div>
   );
 }

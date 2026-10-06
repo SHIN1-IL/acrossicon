@@ -69,8 +69,10 @@
       `한도: 일 ${lic.daily_limit}장 / 달 ${lic.monthly_limit}장`,
       priceHint,
       "",
-      "Chrome 확장 AcrossIcon → 설정 → 라이선스 키 입력 → 저장",
-      "생성 개수·해상도는 Side Panel에서 바로 고릅니다.",
+      "사용 방법:",
+      "1) https://acrossicon.onrender.com/app/ 접속",
+      "2) 설정 → 라이선스 키 + OpenAI(또는 Google) API 키 저장",
+      "3) 로고/상품/홈 이미지 생성",
       "",
       "구독 문의·연장: 카톡/문자 070-8065-1258 · acrosstool@gmail.com",
     ].join("\n");
