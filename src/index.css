@@ -16,6 +16,20 @@
     --sky-dim: rgba(56, 189, 248, 0.06);
     --sky-soft: rgba(56, 189, 248, 0.12);
     --sky-border: rgba(56, 189, 248, 0.35);
+    /* Text-only scale — layout / banner frames stay fixed */
+    --font-scale: 1.08;
+  }
+
+  html[data-font-size='sm'] {
+    --font-scale: 1;
+  }
+
+  html[data-font-size='md'] {
+    --font-scale: 1.08;
+  }
+
+  html[data-font-size='lg'] {
+    --font-scale: 1.16;
   }
 
   * {
@@ -34,20 +48,7 @@
     overflow-x: hidden;
     color: var(--text);
     background: var(--bg);
-    font-size: 15px;
-  }
-
-  /* UI font scale — zooms layout so fixed px Tailwind sizes scale too */
-  html[data-font-size='sm'] #root {
-    zoom: 1;
-  }
-
-  html[data-font-size='md'] #root {
-    zoom: 1.08;
-  }
-
-  html[data-font-size='lg'] #root {
-    zoom: 1.16;
+    font-size: calc(15px * var(--font-scale));
   }
 
   ::-webkit-scrollbar {
@@ -78,5 +79,33 @@
     );
     background-size: 200% 100%;
     @apply animate-shimmer;
+  }
+}
+
+/* Scale typography only — do not affect rem-based layout (banner frames, gaps, images) */
+@layer components {
+  .text-xs {
+    font-size: calc(0.75rem * var(--font-scale)) !important;
+  }
+  .text-sm {
+    font-size: calc(0.875rem * var(--font-scale)) !important;
+  }
+  .text-base {
+    font-size: calc(1rem * var(--font-scale)) !important;
+  }
+  .text-lg {
+    font-size: calc(1.125rem * var(--font-scale)) !important;
+  }
+  .text-\[8px\] {
+    font-size: calc(8px * var(--font-scale)) !important;
+  }
+  .text-\[9px\] {
+    font-size: calc(9px * var(--font-scale)) !important;
+  }
+  .text-\[10px\] {
+    font-size: calc(10px * var(--font-scale)) !important;
+  }
+  .text-\[11px\] {
+    font-size: calc(11px * var(--font-scale)) !important;
   }
 }
