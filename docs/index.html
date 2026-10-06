@@ -316,21 +316,33 @@
       }
 
       footer {
-        padding: 1.5rem clamp(1.25rem, 3vw, 2.5rem) 2.5rem;
-        color: rgba(183, 201, 192, 0.7);
-        font-size: 0.85rem;
+        padding: 1.25rem clamp(1.25rem, 3vw, 2.5rem) 2rem;
+        color: rgba(183, 201, 192, 0.55);
+        font-size: 0.7rem;
+        line-height: 1.55;
+        text-align: center;
       }
 
       footer .section-inner {
         display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem 1.5rem;
-        justify-content: space-between;
+        flex-direction: column;
+        gap: 0.35rem;
         align-items: center;
+      }
+
+      footer .merchant {
+        font-size: 0.65rem;
+        color: rgba(183, 201, 192, 0.4);
+      }
+
+      footer a {
+        color: var(--lime);
+        text-decoration: none;
       }
 
       footer a:hover {
         color: var(--fog);
+        text-decoration: underline;
       }
 
       @keyframes rise {
@@ -488,9 +500,15 @@
 
     <footer>
       <div class="section-inner">
-        <span>AcrossIcon · AcrossTool</span>
-        <a href="https://acrosstool.com" rel="noopener noreferrer" target="_blank"
-          >acrosstool.com</a
+        <span
+          >ACROSSTOOL ·
+          <a href="./privacy.html">개인정보 처리방침</a>
+          · 문의 카톡/문자
+          <a href="tel:07080651258">070-8065-1258</a></span
+        >
+        <span class="merchant"
+          >어크로스툴(ACROSSTOOL) · 대표 신일 · 163-13-03007 · 양양군 서면
+          쌍솔배기길31-1</span
         >
       </div>
     </footer>

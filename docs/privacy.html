@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>개인정보 처리방침 — AcrossIcon AI</title>
+  <style>
+    :root {
+      --bg: #09090b;
+      --raised: #18181b;
+      --border: #3f3f46;
+      --text: #fafafa;
+      --muted: #a1a1aa;
+      --sky: #38bdf8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0 auto;
+      padding: 20px 16px 48px;
+      max-width: 720px;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--text);
+      background: var(--bg);
+    }
+    .back {
+      display: inline-block;
+      margin-bottom: 12px;
+      color: var(--sky);
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .card {
+      background: var(--raised);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 16px;
+    }
+    h1 { font-size: 1.15rem; margin: 0 0 6px; }
+    .sub { color: var(--muted); font-size: 12px; margin: 0 0 16px; }
+    h2 { font-size: 0.95rem; margin: 18px 0 8px; }
+    p, li { color: #e4e4e7; }
+    ul { padding-left: 1.2em; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin: 8px 0 12px;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #27272a; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <a class="back" href="./">← AcrossIcon 소개로 돌아가기</a>
+  <article class="card">
+    <h1>AcrossIcon AI 개인정보 처리방침</h1>
+    <p class="sub">최종 수정일: 2026년 10월 6일 · 운영자: ACROSSTOOL (어크로스툴)</p>
+
+    <h2>1. 수집하는 개인정보</h2>
+    <p>AcrossIcon AI는 별도 회원가입 없이 웹앱·Chrome 확장과 API 서버로 서비스를 제공합니다.</p>
+    <table>
+      <thead><tr><th>항목</th><th>수집 경로</th><th>목적</th><th>보관</th></tr></thead>
+      <tbody>
+        <tr><td>라이선스 키</td><td>사용자 입력</td><td>구독 인증·한도 관리</td><td>브라우저 로컬 + 서버 DB</td></tr>
+        <tr><td>생성 입력(브랜드명·요구사항 등)</td><td>사용자 입력</td><td>AI 이미지 생성</td><td>생성 요청 시 전송, 서버에 장기 저장하지 않음</td></tr>
+        <tr><td>업로드 참고 이미지</td><td>사용자 업로드</td><td>이미지 편집·재해석</td><td>요청 처리 후 서버에 장기 저장하지 않음</td></tr>
+        <tr><td>API 요청 로그</td><td>자동</td><td>한도·운영·장애 대응</td><td>서버 DB</td></tr>
+      </tbody>
+    </table>
+
+    <h2>2. 수집하지 않는 정보</h2>
+    <ul>
+      <li>이름, 주민등록번호, GPS 좌표</li>
+      <li>결제 카드 정보 (현재 무통장·수동 발급 중심)</li>
+      <li>고객 OpenAI API 키 (서버 관리형 키만 사용)</li>
+    </ul>
+
+    <h2>3. 이용 목적</h2>
+    <ul>
+      <li>라이선스 확인 및 일·월 사용량 한도 관리</li>
+      <li>AI 이미지 생성 (OpenAI 등)</li>
+      <li>고객 문의 대응</li>
+    </ul>
+
+    <h2>4. 제3자 제공</h2>
+    <p>이미지 생성을 위해 입력 텍스트·참고 이미지가 OpenAI 등 AI 제공자에 전송됩니다. 그 외 제3자에게 판매하거나 제공하지 않습니다.</p>
+
+    <h2>5. 보관 기간</h2>
+    <ul>
+      <li>라이선스 정보: 구독 만료 후 1년 또는 관련 법령</li>
+      <li>API 요청 로그: 90일</li>
+      <li>생성 요청 본문·업로드 이미지: 서버에 장기 저장하지 않음</li>
+    </ul>
+
+    <h2>6. 사용자 권리</h2>
+    <p>설정에서 라이선스 키를 지우고 브라우저 저장 데이터를 삭제할 수 있습니다. 해지·환불·삭제 요청은 아래 문의처로 연락해 주세요.</p>
+
+    <h2>7. 보안</h2>
+    <p>서버 API 키는 환경변수로 관리하며, 라이선스 검증은 서버에서 수행합니다. 프로덕션은 HTTPS를 사용합니다.</p>
+
+    <h2>8. 아동 개인정보</h2>
+    <p>만 14세 미만을 대상으로 하지 않습니다.</p>
+
+    <h2>9. 방침 변경</h2>
+    <p>변경 시 본 페이지와 서비스 화면에서 안내합니다.</p>
+
+    <h2>10. 문의</h2>
+    <p>
+      운영자: ACROSSTOOL (어크로스툴)<br />
+      대표: 신일<br />
+      사업자등록번호: 163-13-03007<br />
+      주소: 강원특별자치도 양양군 서면 쌍솔배기길31-1<br />
+      문의: 카톡/문자 070-8065-1258<br />
+      이메일: acrosstool@gmail.com
+    </p>
+  </article>
+</body>
+</html>

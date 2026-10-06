@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { KeyRound, X } from 'lucide-react';
+import { LegalFoot } from '@/components/LegalFoot';
 import { AppSettings, FONT_SIZES, FontSize, Locale } from '@/types';
 import { t } from '@/i18n';
 
@@ -210,6 +211,7 @@ export function SettingsPanel({
           >
             {saving ? t(locale, 'settings.saving') : t(locale, 'settings.save')}
           </button>
+          <LegalFoot locale={locale} className="mt-3" />
         </div>
       </aside>
     </div>

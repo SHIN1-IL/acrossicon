@@ -25,6 +25,7 @@ from license_vault import restore_vault
 
 OPS_DIR = Path(__file__).parent / "ops"
 WEB_DIR = Path(__file__).parent / "web"
+PRIVACY_FILE = Path(__file__).parent / "privacy.html"
 
 
 @asynccontextmanager
@@ -194,6 +195,14 @@ def app_index():
             detail="웹앱이 아직 빌드되지 않았습니다. npm run build:web 후 재배포하세요.",
         )
     return FileResponse(index)
+
+
+@app.get("/privacy")
+@app.get("/privacy/")
+def privacy_policy():
+    if not PRIVACY_FILE.exists():
+        raise HTTPException(status_code=404, detail="개인정보 처리방침을 찾을 수 없습니다.")
+    return FileResponse(PRIVACY_FILE)
 
 
 app.mount("/ops", StaticFiles(directory=str(OPS_DIR), html=True), name="ops")

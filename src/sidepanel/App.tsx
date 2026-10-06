@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ConfirmGenerateModal } from '@/components/ConfirmGenerateModal';
 import { Header } from '@/components/Header';
 import { InputForm } from '@/components/InputForm';
+import { LegalFoot } from '@/components/LegalFoot';
 import { GalleryTab, ResultGallery } from '@/components/ResultGallery';
 import { SettingsPanel } from '@/components/SettingsPanel';
 import { Toast } from '@/components/Toast';
@@ -366,6 +367,7 @@ export default function App({ runtime = 'extension' }: AppProps) {
             onDeleteHistoryItem={handleDeleteHistoryItem}
             onClearHistory={handleClearHistory}
           />
+          <LegalFoot locale={locale} className="shrink-0 px-4 py-3" />
         </main>
 
         <ConfirmGenerateModal

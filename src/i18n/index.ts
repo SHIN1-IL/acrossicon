@@ -14,6 +14,10 @@ const ko: Dict = {
   'header.language': '언어',
   'header.quotaToday': '오늘',
   'header.quotaMonth': '이번달',
+  'legal.privacy': '개인정보 처리방침',
+  'legal.contact': '문의 카톡/문자',
+  'legal.merchant':
+    '어크로스툴(ACROSSTOOL) · 대표 신일 · 163-13-03007 · 양양군 서면 쌍솔배기길31-1',
 
   'mode.logo': '로고',
   'mode.product': '상품 배너',
@@ -217,6 +221,10 @@ const en: Dict = {
   'header.language': 'Language',
   'header.quotaToday': 'Today',
   'header.quotaMonth': 'Month',
+  'legal.privacy': 'Privacy Policy',
+  'legal.contact': 'Kakao/SMS',
+  'legal.merchant':
+    'ACROSSTOOL · CEO Shin Il · 163-13-03007 · Yangyang, Gangwon, Korea',
 
   'mode.logo': 'Logo',
   'mode.product': 'Product',
