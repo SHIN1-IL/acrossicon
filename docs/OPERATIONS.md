@@ -72,3 +72,21 @@ uvicorn main:app --reload --port 8000
 3. **라이선스 서버 URL** (비우면 `https://acrossicon.onrender.com`)  
 
 생성은 서버 프록시를 사용합니다. 고객 API 키는 받지 않습니다.
+
+## PDF 안내서 (고객·관리자)
+
+`docs/`에 한글 PDF 세 종이 있습니다. 입금 확인 후 고객에게는 해당 플랜 PDF를 함께 보냅니다.
+
+| 파일 | 용도 |
+|------|------|
+| `AcrossIcon_관리자_운영가이드.pdf` | 입금 확인, `/ops/` 키 발급·연장, Render 운영 |
+| `AcrossIcon_고객_사용방법_스탠다드.pdf` | 스탠다드 고객 (14,900원 · 일 10 / 월 60) |
+| `AcrossIcon_고객_사용방법_프리미엄.pdf` | 프리미엄 고객 (29,900원 · 일 20 / 월 120) |
+
+재생성:
+
+```bash
+python3 scripts/generate_guides_pdf.py
+```
+
+macOS `AppleGothic`과 `reportlab`이 필요합니다 (`pip install reportlab`).
