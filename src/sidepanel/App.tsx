@@ -332,8 +332,7 @@ export default function App({ runtime = 'extension' }: AppProps) {
           hasApiKey={Boolean(settings.licenseKey.trim())}
           onOpenSettings={() => setSettingsOpen(true)}
           onLocaleChange={handleLocaleChange}
-          planLabel={quota?.plan_label || undefined}
-          quotaLabel={formatQuota(quota)}
+          quota={quota}
         />
 
         <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-surface-raised">

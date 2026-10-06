@@ -1,14 +1,15 @@
 import { Sparkles, Settings } from 'lucide-react';
+import { FlipNumber } from '@/components/FlipClock';
 import { Locale } from '@/types';
 import { t } from '@/i18n';
+import type { LicenseQuota } from '@/lib/licenseApi';
 
 interface HeaderProps {
   locale: Locale;
   onOpenSettings: () => void;
   onLocaleChange: (locale: Locale) => void;
   hasApiKey: boolean;
-  quotaLabel?: string;
-  planLabel?: string;
+  quota?: LicenseQuota | null;
 }
 
 export function Header({
@@ -16,18 +17,25 @@ export function Header({
   onOpenSettings,
   onLocaleChange,
   hasApiKey,
-  quotaLabel,
-  planLabel,
+  quota,
 }: HeaderProps) {
+  const dailyLeft = quota
+    ? Math.max(0, quota.daily_limit - quota.daily_used)
+    : null;
+  const monthlyLeft = quota
+    ? Math.max(0, quota.monthly_limit - quota.monthly_used)
+    : null;
+  const planLabel = quota?.plan_label || '';
+
   return (
-    <header className="sticky top-0 z-20 border-b border-surface-border bg-surface-banner px-4 py-3">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-2.5">
+    <header className="sticky top-0 z-20 border-b border-surface-border bg-surface-banner px-3 py-2.5 sm:px-4">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent ring-1 ring-accent-border">
             <Sparkles className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <h1 className="truncate text-sm font-semibold tracking-tight text-ink">
+            <h1 className="truncate text-sm font-semibold tracking-tight text-ink sm:text-base">
               AcrossIcon AI
             </h1>
             <p className="truncate text-[11px] text-ink-muted">
@@ -36,7 +44,41 @@ export function Header({
           </div>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="justify-self-center">
+          {quota && dailyLeft !== null && monthlyLeft !== null ? (
+            <div
+              className="flex flex-col items-center gap-1"
+              role="status"
+              aria-label={`${planLabel} ${t(locale, 'header.quotaToday')} ${dailyLeft}/${quota.daily_limit} ${t(locale, 'header.quotaMonth')} ${monthlyLeft}/${quota.monthly_limit}`}
+            >
+              {planLabel ? (
+                <span className="rounded-md border border-accent-border bg-accent-soft px-2 py-0.5 text-[11px] font-bold tracking-wide text-accent sm:text-xs">
+                  {planLabel}
+                </span>
+              ) : null}
+
+              <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1">
+                <QuotaBlock
+                  label={t(locale, 'header.quotaToday')}
+                  left={dailyLeft}
+                  limit={quota.daily_limit}
+                />
+                <span className="hidden text-ink-dim sm:inline" aria-hidden>
+                  ·
+                </span>
+                <QuotaBlock
+                  label={t(locale, 'header.quotaMonth')}
+                  left={monthlyLeft}
+                  limit={quota.monthly_limit}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="h-8" aria-hidden />
+          )}
+        </div>
+
+        <div className="flex items-center justify-end gap-1">
           <div
             className="flex rounded-md bg-surface-overlay p-0.5 ring-1 ring-surface-border"
             role="group"
@@ -75,19 +117,28 @@ export function Header({
           </button>
         </div>
       </div>
-
-      {(planLabel || quotaLabel) && (
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          {planLabel && (
-            <span className="rounded-md border border-accent-border bg-surface-banner px-2 py-0.5 text-[10px] font-semibold text-accent">
-              {planLabel}
-            </span>
-          )}
-          {quotaLabel && (
-            <span className="text-[10px] text-ink-muted">{quotaLabel}</span>
-          )}
-        </div>
-      )}
     </header>
+  );
+}
+
+function QuotaBlock({
+  label,
+  left,
+  limit,
+}: {
+  label: string;
+  left: number;
+  limit: number;
+}) {
+  const width = Math.max(2, String(limit).length);
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className="text-[11px] font-semibold text-ink-muted sm:text-xs">
+        {label}
+      </span>
+      <FlipNumber value={left} digits={width} />
+      <span className="text-sm font-bold text-ink-dim sm:text-base">/</span>
+      <FlipNumber value={limit} digits={width} />
+    </div>
   );
 }

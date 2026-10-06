@@ -11,6 +11,8 @@ const ko: Dict = {
   'app.subtitle': '로고 · 상품 · 홈 이미지',
   'header.settings': '설정',
   'header.language': '언어',
+  'header.quotaToday': '오늘',
+  'header.quotaMonth': '이번달',
 
   'mode.logo': '로고',
   'mode.product': '상품 배너',
@@ -201,6 +203,8 @@ const en: Dict = {
   'app.subtitle': 'Logo · Product · Home images',
   'header.settings': 'Settings',
   'header.language': 'Language',
+  'header.quotaToday': 'Today',
+  'header.quotaMonth': 'Month',
 
   'mode.logo': 'Logo',
   'mode.product': 'Product',
