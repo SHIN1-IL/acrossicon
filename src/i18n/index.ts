@@ -135,8 +135,9 @@ const ko: Dict = {
   'settings.provider': 'AI 제공자',
   'settings.apiKey': 'API Key',
   'settings.saved': '저장됨',
+  'settings.apiKeyKeepPlaceholder': '비워두면 기존 키 유지',
   'settings.keyHint':
-    'Key는 브라우저 로컬(chrome.storage.local)에만 저장되며 외부로 전송되지 않습니다.',
+    'OpenAI/Google 키는 이 브라우저에만 저장됩니다. 눈 아이콘으로 입력값을 확인한 뒤 저장하세요.',
   'settings.licenseKey': '라이선스 키',
   'settings.licenseKeyPlaceholder': 'XXXX-XXXX-XXXX',
   'settings.licenseHint':
@@ -319,8 +320,9 @@ const en: Dict = {
   'settings.provider': 'AI provider',
   'settings.apiKey': 'API Key',
   'settings.saved': 'Saved',
+  'settings.apiKeyKeepPlaceholder': 'Leave blank to keep current key',
   'settings.keyHint':
-    'Keys are stored only in local browser storage (chrome.storage.local) and never sent to our servers.',
+    'Your OpenAI/Google key stays in this browser. Reveal with the eye icon, then save.',
   'settings.licenseKey': 'License key',
   'settings.licenseKeyPlaceholder': 'XXXX-XXXX-XXXX',
   'settings.licenseHint':

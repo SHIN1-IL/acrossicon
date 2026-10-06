@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Eye, EyeOff, KeyRound, X } from 'lucide-react';
 import { AiProvider, AppSettings, Locale } from '@/types';
 import { maskApiKey } from '@/lib/storage';
@@ -23,6 +23,7 @@ export function SettingsPanel({
   const [draft, setDraft] = useState<AppSettings>(settings);
   const [showKey, setShowKey] = useState(false);
   const [saving, setSaving] = useState(false);
+  const apiKeyRef = useRef<HTMLInputElement>(null);
   const locale = draft.locale;
 
   useEffect(() => {
@@ -37,7 +38,17 @@ export function SettingsPanel({
   const handleSave = async () => {
     setSaving(true);
     try {
-      await onSave(draft);
+      // Password autofill often skips React onChange — read DOM value on save.
+      const typedKey = (apiKeyRef.current?.value ?? draft.apiKey).trim();
+      // Empty field keeps the previously saved key (common “dots look filled” case).
+      const apiKey = typedKey || settings.apiKey.trim();
+      const next: AppSettings = {
+        ...draft,
+        apiKey,
+        licenseKey: draft.licenseKey.trim().toUpperCase(),
+        apiBaseUrl: draft.apiBaseUrl.trim(),
+      };
+      await onSave(next);
       onClose();
     } finally {
       setSaving(false);
@@ -112,11 +123,27 @@ export function SettingsPanel({
             </span>
             <div className="relative">
               <input
+                ref={apiKeyRef}
                 type={showKey ? 'text' : 'password'}
                 value={draft.apiKey}
-                onChange={(e) => setDraft((prev) => ({ ...prev, apiKey: e.target.value.trim() }))}
-                placeholder={draft.provider === 'openai' ? 'sk-...' : 'AIza...'}
-                autoComplete="off"
+                onChange={(e) =>
+                  setDraft((prev) => ({ ...prev, apiKey: e.target.value }))
+                }
+                onInput={(e) =>
+                  setDraft((prev) => ({
+                    ...prev,
+                    apiKey: (e.target as HTMLInputElement).value,
+                  }))
+                }
+                placeholder={
+                  settings.apiKey
+                    ? t(locale, 'settings.apiKeyKeepPlaceholder')
+                    : draft.provider === 'openai'
+                      ? 'sk-...'
+                      : 'AIza...'
+                }
+                autoComplete="new-password"
+                name="acrossicon-openai-key"
                 spellCheck={false}
                 className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 pr-10 font-mono text-sm text-zinc-100 outline-none focus:border-sky-500/60"
               />
