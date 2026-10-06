@@ -2,6 +2,7 @@ import {
   AppSettings,
   DEFAULT_SETTINGS,
   GeneratedLogo,
+  normalizeFontSize,
   normalizeImageSize,
   normalizeLocale,
 } from '@/types';
@@ -64,6 +65,7 @@ export async function loadSettings(): Promise<AppSettings> {
         ...legacy,
         imageSize: normalizeImageSize(legacy.imageSize),
         locale: normalizeLocale(legacy.locale),
+        fontSize: normalizeFontSize(legacy.fontSize),
         licenseKey: (legacy.licenseKey || '').trim().toUpperCase(),
         apiBaseUrl: (legacy.apiBaseUrl || '').trim(),
       });
@@ -75,6 +77,7 @@ export async function loadSettings(): Promise<AppSettings> {
     ...stored,
     imageSize: normalizeImageSize(stored.imageSize),
     locale: normalizeLocale(stored.locale),
+    fontSize: normalizeFontSize(stored.fontSize),
     licenseKey: (stored.licenseKey || '').trim().toUpperCase(),
     apiBaseUrl: (stored.apiBaseUrl || '').trim(),
   };

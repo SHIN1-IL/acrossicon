@@ -1,5 +1,10 @@
 export type Locale = 'ko' | 'en';
 
+/** UI text scale — md is the new slightly-larger default. */
+export type FontSize = 'sm' | 'md' | 'lg';
+
+export const FONT_SIZES: FontSize[] = ['sm', 'md', 'lg'];
+
 export type AiProvider = 'openai' | 'google';
 
 export type GenerationMode = 'logo' | 'product' | 'home';
@@ -37,6 +42,8 @@ export interface AppSettings {
   promptVariation: boolean;
   /** UI language. Defaults to Korean. */
   locale: Locale;
+  /** UI font scale. Defaults to medium (slightly larger than the original). */
+  fontSize: FontSize;
   customColor?: string;
   /** AcrossIcon subscription license key (XXXX-XXXX-XXXX). */
   licenseKey: string;
@@ -110,6 +117,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   imageSize: '1024x1024',
   promptVariation: true,
   locale: 'ko',
+  fontSize: 'md',
   licenseKey: '',
   apiBaseUrl: '',
 };
@@ -194,6 +202,10 @@ export const LOGO_SHAPES: LogoShape[] = [
 
 export function normalizeLocale(value: string | undefined): Locale {
   return value === 'en' ? 'en' : 'ko';
+}
+
+export function normalizeFontSize(value: string | undefined): FontSize {
+  return value === 'sm' || value === 'lg' ? value : 'md';
 }
 
 /** Normalize legacy DALL·E sizes stored in chrome.storage. */

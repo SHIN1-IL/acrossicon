@@ -132,6 +132,11 @@ const ko: Dict = {
 
   'settings.title': '설정',
   'settings.language': '언어',
+  'settings.fontSize': '글씨 크기',
+  'settings.fontSize.sm': '작게',
+  'settings.fontSize.md': '보통',
+  'settings.fontSize.lg': '크게',
+  'settings.fontSizeHint': '화면 글씨 크기를 조절합니다. 선택 즉시 미리보기됩니다.',
   'settings.provider': 'AI 제공자',
   'settings.apiKey': 'API Key',
   'settings.saved': '저장됨',
@@ -318,6 +323,11 @@ const en: Dict = {
 
   'settings.title': 'Settings',
   'settings.language': 'Language',
+  'settings.fontSize': 'Font size',
+  'settings.fontSize.sm': 'Small',
+  'settings.fontSize.md': 'Medium',
+  'settings.fontSize.lg': 'Large',
+  'settings.fontSizeHint': 'Adjust on-screen text size. Changes preview instantly.',
   'settings.provider': 'AI provider',
   'settings.apiKey': 'API Key',
   'settings.saved': 'Saved',

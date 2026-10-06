@@ -34,6 +34,20 @@
     overflow-x: hidden;
     color: var(--text);
     background: var(--bg);
+    font-size: 15px;
+  }
+
+  /* UI font scale — zooms layout so fixed px Tailwind sizes scale too */
+  html[data-font-size='sm'] #root {
+    zoom: 1;
+  }
+
+  html[data-font-size='md'] #root {
+    zoom: 1.08;
+  }
+
+  html[data-font-size='lg'] #root {
+    zoom: 1.16;
   }
 
   ::-webkit-scrollbar {

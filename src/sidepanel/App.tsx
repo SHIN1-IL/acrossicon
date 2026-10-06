@@ -70,6 +70,10 @@ export default function App({ runtime = 'extension' }: AppProps) {
     document.documentElement.lang = locale === 'en' ? 'en' : 'ko';
   }, [locale]);
 
+  useEffect(() => {
+    document.documentElement.dataset.fontSize = settings.fontSize;
+  }, [settings.fontSize]);
+
   const isUploadEdit = form.imageSource === 'upload';
 
   const costEstimate = useMemo(

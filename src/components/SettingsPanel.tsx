@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { KeyRound, X } from 'lucide-react';
-import { AppSettings, Locale } from '@/types';
+import { AppSettings, FONT_SIZES, FontSize, Locale } from '@/types';
 import { t } from '@/i18n';
 
 interface SettingsPanelProps {
@@ -29,6 +29,15 @@ export function SettingsPanel({
     }
   }, [open, settings]);
 
+  // Live-preview font size while the panel is open
+  useEffect(() => {
+    if (!open) return;
+    document.documentElement.dataset.fontSize = draft.fontSize;
+    return () => {
+      document.documentElement.dataset.fontSize = settings.fontSize;
+    };
+  }, [open, draft.fontSize, settings.fontSize]);
+
   if (!open) return null;
 
   const handleSave = async () => {
@@ -46,6 +55,10 @@ export function SettingsPanel({
     } finally {
       setSaving(false);
     }
+  };
+
+  const setFontSize = (fontSize: FontSize) => {
+    setDraft((prev) => ({ ...prev, fontSize }));
   };
 
   return (
@@ -93,6 +106,35 @@ export function SettingsPanel({
               <option value="en">English</option>
             </select>
           </label>
+
+          <div className="block space-y-1.5">
+            <span className="text-xs font-medium text-zinc-400">
+              {t(locale, 'settings.fontSize')}
+            </span>
+            <div
+              className="flex rounded-[10px] border border-accent-border bg-surface-banner p-0.5"
+              role="group"
+              aria-label={t(locale, 'settings.fontSize')}
+            >
+              {FONT_SIZES.map((size) => (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => setFontSize(size)}
+                  className={`flex-1 rounded-md px-2 py-2 text-[11px] font-semibold transition ${
+                    draft.fontSize === size
+                      ? 'bg-accent-deep text-[#0c0a09]'
+                      : 'text-ink-muted hover:text-accent'
+                  }`}
+                >
+                  {t(locale, `settings.fontSize.${size}`)}
+                </button>
+              ))}
+            </div>
+            <p className="text-[11px] leading-relaxed text-zinc-500">
+              {t(locale, 'settings.fontSizeHint')}
+            </p>
+          </div>
 
           <label className="block space-y-1.5">
             <span className="text-xs font-medium text-zinc-400">
