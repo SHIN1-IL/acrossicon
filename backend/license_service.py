@@ -12,10 +12,10 @@ KST = ZoneInfo("Asia/Seoul")
 
 # AcrossIcon 판매 플랜 (이미지 장수 기준)
 PLAN_DEFAULTS = {
-    "standard": {"daily_limit": 10, "monthly_limit": 60},
-    "premium": {"daily_limit": 20, "monthly_limit": 120},
-    "family_standard": {"daily_limit": 10, "monthly_limit": 60},
-    "family_premium": {"daily_limit": 20, "monthly_limit": 120},
+    "standard": {"daily_limit": 20, "monthly_limit": 60},
+    "premium": {"daily_limit": 30, "monthly_limit": 120},
+    "family_standard": {"daily_limit": 20, "monthly_limit": 60},
+    "family_premium": {"daily_limit": 30, "monthly_limit": 120},
     "admin_test": {"daily_limit": 30, "monthly_limit": 999999},
 }
 
@@ -457,6 +457,34 @@ def count_deleted_licenses() -> int:
             "SELECT COUNT(*) AS n FROM licenses WHERE status = 'deleted'"
         ).fetchone()
     return int(row["n"] if row else 0)
+
+
+def sync_plan_limits() -> int:
+    """Align stored daily/monthly limits with current PLAN_DEFAULTS for each plan."""
+    updated = 0
+    with get_db() as conn:
+        for plan, defaults in PLAN_DEFAULTS.items():
+            cur = conn.execute(
+                """
+                UPDATE licenses
+                SET daily_limit = ?,
+                    monthly_limit = ?,
+                    updated_at = datetime('now')
+                WHERE plan = ?
+                  AND (daily_limit != ? OR monthly_limit != ?)
+                """,
+                (
+                    defaults["daily_limit"],
+                    defaults["monthly_limit"],
+                    plan,
+                    defaults["daily_limit"],
+                    defaults["monthly_limit"],
+                ),
+            )
+            updated += cur.rowcount or 0
+    if updated:
+        _persist_vault()
+    return updated
 
 
 def seed_admin_test_key() -> None:

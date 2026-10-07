@@ -80,8 +80,8 @@
     const isPremium = plan.includes("premium");
     const product = isPremium ? "프리미엄" : "스탠다드";
     const priceHint = isPremium
-      ? "유료 월 29,900원 · 하루 20장 · 달 120장"
-      : "유료 월 14,900원 · 하루 10장 · 달 60장";
+      ? "유료 월 29,900원 · 하루 30장 · 달 120장"
+      : "유료 월 14,900원 · 하루 20장 · 달 60장";
     return [
       "AcrossIcon 키 발급됐습니다.",
       "",

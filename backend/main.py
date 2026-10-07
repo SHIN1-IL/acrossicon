@@ -20,6 +20,7 @@ from license_service import (
     log_request,
     plan_label,
     seed_admin_test_key,
+    sync_plan_limits,
 )
 from license_vault import restore_vault
 
@@ -33,6 +34,7 @@ async def lifespan(_app: FastAPI):
     init_db()
     restore_vault()
     seed_admin_test_key()
+    sync_plan_limits()
     yield
 
 
@@ -88,7 +90,7 @@ def plans():
             "price_monthly": 14900,
             "price_semi_annual": 74500,
             "price_yearly": 149000,
-            "daily_limit": 10,
+            "daily_limit": 20,
             "monthly_limit": 60,
         },
         "premium": {
@@ -96,7 +98,7 @@ def plans():
             "price_monthly": 29900,
             "price_semi_annual": 149500,
             "price_yearly": 299000,
-            "daily_limit": 20,
+            "daily_limit": 30,
             "monthly_limit": 120,
         },
     }

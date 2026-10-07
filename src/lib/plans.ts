@@ -5,7 +5,7 @@ export const SUBSCRIPTION_PLANS = {
     priceMonthly: 14900,
     priceSemiAnnual: 74500,
     priceYearly: 149000,
-    dailyLimit: 10,
+    dailyLimit: 20,
     monthlyLimit: 60,
   },
   premium: {
@@ -13,7 +13,7 @@ export const SUBSCRIPTION_PLANS = {
     priceMonthly: 29900,
     priceSemiAnnual: 149500,
     priceYearly: 299000,
-    dailyLimit: 20,
+    dailyLimit: 30,
     monthlyLimit: 120,
   },
 } as const;
