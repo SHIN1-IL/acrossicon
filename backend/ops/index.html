@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex,nofollow" />
   <title>AcrossIcon 운영 콘솔</title>
-  <link rel="stylesheet" href="styles.css?v=20261005" />
+  <link rel="stylesheet" href="styles.css?v=20261007" />
 </head>
 <body>
   <h1>AcrossIcon 운영 콘솔</h1>
@@ -52,8 +52,15 @@
     </section>
 
     <section class="card">
-      <h2>라이선스</h2>
-      <button type="button" id="refreshBtn" class="secondary">새로고침</button>
+      <div class="list-head">
+        <h2 id="listTitle">라이선스</h2>
+        <div class="list-tools">
+          <button type="button" id="refreshBtn" class="secondary">새로고침</button>
+          <button type="button" id="deletedViewBtn" class="secondary">삭제 목록</button>
+          <button type="button" id="activeViewBtn" class="secondary" hidden>← 활성 목록</button>
+        </div>
+      </div>
+      <p id="listHint" class="list-hint" hidden>삭제한 키만 모은 목록입니다. 복원하면 다시 활성 목록으로 돌아갑니다.</p>
       <div class="table-wrap">
         <table>
           <thead>
@@ -74,6 +81,6 @@
       </div>
     </section>
   </div>
-  <script src="app.js?v=20261005"></script>
+  <script src="app.js?v=20261007"></script>
 </body>
 </html>

@@ -209,6 +209,31 @@ button.btn-premium:hover {
   font-weight: 600;
 }
 
+.list-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.list-head h2 {
+  margin: 0;
+}
+
+.list-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.list-hint {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .table-wrap {
   overflow-x: auto;
   margin-top: 10px;
@@ -233,6 +258,12 @@ th {
   font-weight: 600;
 }
 
+.empty-row {
+  color: var(--muted);
+  text-align: center;
+  padding: 16px 4px;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;
@@ -244,7 +275,65 @@ th {
   font-size: 11px;
 }
 
+button.btn-danger {
+  background: #7f1d1d;
+  color: #fecaca;
+  border: 1px solid #991b1b;
+}
+
+button.btn-danger:hover {
+  background: #991b1b;
+  color: #fff;
+}
+
 code {
   font-size: 11px;
   color: var(--sky);
+}
+
+.status-badge {
+  font-weight: 700;
+}
+
+.status-suspended {
+  color: var(--err);
+}
+
+.status-deleted {
+  color: #fb7185;
+}
+
+tr.row-suspended td {
+  color: var(--err);
+  text-decoration: line-through;
+}
+
+tr.row-suspended code {
+  color: var(--err);
+}
+
+tr.row-suspended .status-badge {
+  text-decoration: line-through;
+}
+
+tr.row-suspended .actions,
+tr.row-suspended .actions button,
+tr.row-suspended .note-edit,
+tr.row-suspended .note-state {
+  text-decoration: none;
+  color: initial;
+}
+
+tr.row-suspended .actions button {
+  color: #0c0a09;
+}
+
+tr.row-suspended .actions button.secondary,
+tr.row-suspended .actions button.btn-danger {
+  color: #fecaca;
+}
+
+tr.row-suspended .note-edit {
+  color: var(--text);
+  text-decoration: none;
 }

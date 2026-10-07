@@ -134,6 +134,9 @@ def check_license(license_key: str) -> LicenseStatus:
     if not lic:
         return LicenseStatus(valid=False, message="등록되지 않았거나 만료된 라이선스입니다.")
 
+    if lic["status"] == "deleted":
+        return LicenseStatus(valid=False, message="삭제된 라이선스입니다. 문의해 주세요.")
+
     if lic["status"] == "suspended":
         return LicenseStatus(valid=False, message="정지된 라이선스입니다. 문의해 주세요.")
 
@@ -360,6 +363,52 @@ def activate_license(license_key: str) -> dict:
     return lic
 
 
+def delete_license(license_key: str) -> dict:
+    """Soft-delete: keep the row so it can be reviewed in the deleted list."""
+    key = license_key.strip().upper()
+    if key == ADMIN_TEST_KEY:
+        raise ValueError("관리자 테스트 키는 삭제할 수 없습니다.")
+    lic = get_license(key)
+    if not lic:
+        raise ValueError(f"License not found: {key}")
+    if lic.get("status") == "deleted":
+        return lic
+    with get_db() as conn:
+        conn.execute(
+            """
+            UPDATE licenses
+            SET status = 'deleted', updated_at = datetime('now')
+            WHERE license_key = ?
+            """,
+            (key,),
+        )
+    lic = get_license(key)
+    _persist_vault()
+    return lic
+
+
+def restore_license(license_key: str) -> dict:
+    """Restore a soft-deleted license to active."""
+    key = license_key.strip().upper()
+    lic = get_license(key)
+    if not lic:
+        raise ValueError(f"License not found: {key}")
+    if lic.get("status") != "deleted":
+        return lic
+    with get_db() as conn:
+        conn.execute(
+            """
+            UPDATE licenses
+            SET status = 'active', updated_at = datetime('now')
+            WHERE license_key = ?
+            """,
+            (key,),
+        )
+    lic = get_license(key)
+    _persist_vault()
+    return lic
+
+
 def set_note(license_key: str, note: str) -> dict:
     key = license_key.strip().upper()
     lic = get_license(key)
@@ -379,9 +428,18 @@ def set_note(license_key: str, note: str) -> dict:
     return lic
 
 
-def list_licenses() -> list[dict]:
+def list_licenses(*, include_deleted: bool = False, deleted_only: bool = False) -> list[dict]:
     with get_db() as conn:
-        rows = conn.execute("SELECT * FROM licenses ORDER BY created_at DESC").fetchall()
+        if deleted_only:
+            rows = conn.execute(
+                "SELECT * FROM licenses WHERE status = 'deleted' ORDER BY updated_at DESC"
+            ).fetchall()
+        elif include_deleted:
+            rows = conn.execute("SELECT * FROM licenses ORDER BY created_at DESC").fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT * FROM licenses WHERE status != 'deleted' ORDER BY created_at DESC"
+            ).fetchall()
     out = []
     for r in rows:
         item = dict(r)
@@ -391,6 +449,14 @@ def list_licenses() -> list[dict]:
         item["plan_label"] = plan_label(item.get("plan") or "")
         out.append(item)
     return out
+
+
+def count_deleted_licenses() -> int:
+    with get_db() as conn:
+        row = conn.execute(
+            "SELECT COUNT(*) AS n FROM licenses WHERE status = 'deleted'"
+        ).fetchone()
+    return int(row["n"] if row else 0)
 
 
 def seed_admin_test_key() -> None:

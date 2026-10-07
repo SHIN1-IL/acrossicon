@@ -8,9 +8,16 @@
     issueMsg: document.getElementById("issueMsg"),
     customerMsg: document.getElementById("customerMsg"),
     rows: document.getElementById("rows"),
+    listTitle: document.getElementById("listTitle"),
+    listHint: document.getElementById("listHint"),
+    deletedViewBtn: document.getElementById("deletedViewBtn"),
+    activeViewBtn: document.getElementById("activeViewBtn"),
   };
 
   let token = sessionStorage.getItem(TOKEN_KEY) || "";
+  /** @type {'active' | 'deleted'} */
+  let listView = "active";
+  let deletedCount = 0;
 
   function showErr(msg) {
     els.loginErr.hidden = !msg;
@@ -51,6 +58,23 @@
       .replace(/</g, "&lt;");
   }
 
+  function statusLabel(status) {
+    if (status === "suspended") return "정지";
+    if (status === "deleted") return "삭제됨";
+    if (status === "active") return "활성";
+    return status || "—";
+  }
+
+  function updateListChrome() {
+    const deleted = listView === "deleted";
+    els.listTitle.textContent = deleted ? "삭제된 라이선스" : "라이선스";
+    els.listHint.hidden = !deleted;
+    els.deletedViewBtn.hidden = deleted;
+    els.activeViewBtn.hidden = !deleted;
+    els.deletedViewBtn.textContent =
+      deletedCount > 0 ? `삭제 목록 (${deletedCount})` : "삭제 목록";
+  }
+
   function customerCopy(lic) {
     const plan = lic.plan || "";
     const isPremium = plan.includes("premium");
@@ -78,31 +102,62 @@
     ].join("\n");
   }
 
+  function rowActions(lic) {
+    const key = escapeHtml(lic.license_key);
+    if (listView === "deleted") {
+      return `
+            <button type="button" data-act="restore" data-key="${key}">복원</button>
+            <button type="button" data-act="copy" data-key="${key}">안내</button>`;
+    }
+    const isAdminTest = lic.license_key === "ADMIN-TEST";
+    return `
+            <button type="button" data-act="editnote" data-key="${key}">수정</button>
+            <button type="button" data-act="savenote" data-key="${key}">저장</button>
+            <button type="button" data-act="copy" data-key="${key}">안내</button>
+            <button type="button" data-act="extend30" data-key="${key}">+30일</button>
+            <button type="button" data-act="suspend" data-key="${key}">정지</button>
+            <button type="button" data-act="activate" data-key="${key}">활성</button>
+            ${
+              isAdminTest
+                ? ""
+                : `<button type="button" class="btn-danger" data-act="delete" data-key="${key}">삭제</button>`
+            }`;
+  }
+
   async function loadList() {
-    const data = await admin("/admin/licenses");
+    const qs = listView === "deleted" ? "?deleted=true" : "";
+    const data = await admin(`/admin/licenses${qs}`);
     const list = data.licenses || [];
+    deletedCount = Number(data.deleted_count || 0);
+    updateListChrome();
+    if (!list.length) {
+      els.rows.innerHTML = `<tr><td colspan="9" class="empty-row">${
+        listView === "deleted" ? "삭제된 라이선스가 없습니다." : "표시할 라이선스가 없습니다."
+      }</td></tr>`;
+      return;
+    }
     els.rows.innerHTML = list
       .map((lic) => {
         const key = lic.license_key;
-        return `<tr>
+        const suspended = lic.status === "suspended";
+        const rowClass = suspended ? "row-suspended" : "";
+        return `<tr class="${rowClass}">
           <td><code>${escapeHtml(key)}</code></td>
           <td>${escapeHtml(lic.plan_label || lic.plan)}</td>
           <td>${escapeHtml(startText(lic))}</td>
           <td>${escapeHtml(endText(lic))}</td>
-          <td>${escapeHtml(lic.status)}</td>
+          <td><span class="status-badge status-${escapeHtml(lic.status)}">${escapeHtml(
+            statusLabel(lic.status),
+          )}</span></td>
           <td>${lic.daily_used ?? 0}/${lic.daily_limit}</td>
           <td>${lic.monthly_used ?? 0}/${lic.monthly_limit}</td>
           <td class="note-cell">
-            <input class="note-edit" value="${escapeHtml(lic.note || "")}" />
+            <input class="note-edit" value="${escapeHtml(lic.note || "")}" ${
+              listView === "deleted" ? "readonly" : ""
+            } />
             <span class="note-state"></span>
           </td>
-          <td class="actions">
-            <button type="button" data-act="editnote" data-key="${escapeHtml(key)}">수정</button>
-            <button type="button" data-act="savenote" data-key="${escapeHtml(key)}">저장</button>
-            <button type="button" data-act="copy" data-key="${escapeHtml(key)}">안내</button>
-            <button type="button" data-act="extend30" data-key="${escapeHtml(key)}">+30일</button>
-            <button type="button" data-act="suspend" data-key="${escapeHtml(key)}">정지</button>
-            <button type="button" data-act="activate" data-key="${escapeHtml(key)}">활성</button>
+          <td class="actions">${rowActions(lic)}
           </td>
         </tr>`;
       })
@@ -131,6 +186,7 @@
     els.customerMsg.value = customerCopy(lic);
     els.issueMsg.hidden = false;
     els.issueMsg.textContent = `발급됨: ${lic.license_key}`;
+    listView = "active";
     await loadList();
   }
 
@@ -155,6 +211,7 @@
       showErr("");
       document.getElementById("loginCard").hidden = true;
       els.desk.hidden = false;
+      listView = "active";
       await loadList();
     } catch (e) {
       sessionStorage.removeItem(TOKEN_KEY);
@@ -173,6 +230,14 @@
   document.getElementById("refreshBtn").addEventListener("click", () =>
     loadList().catch((e) => alert(e.message)),
   );
+  els.deletedViewBtn.addEventListener("click", () => {
+    listView = "deleted";
+    loadList().catch((e) => alert(e.message));
+  });
+  els.activeViewBtn.addEventListener("click", () => {
+    listView = "active";
+    loadList().catch((e) => alert(e.message));
+  });
   document.querySelectorAll("[data-issue]").forEach((btn) => {
     btn.addEventListener("click", () => issue(btn.dataset.issue).catch((e) => alert(e.message)));
   });
@@ -201,7 +266,7 @@
   els.rows.addEventListener("keydown", async (ev) => {
     if (ev.key !== "Enter") return;
     const input = ev.target.closest(".note-edit");
-    if (!input) return;
+    if (!input || input.readOnly) return;
     ev.preventDefault();
     const row = input.closest("tr");
     const key = row?.querySelector("button[data-act='savenote']")?.dataset.key;
@@ -249,6 +314,19 @@
       }
       if (btn.dataset.act === "activate") {
         await admin(`/admin/licenses/${encodeURIComponent(key)}/activate`, { method: "POST" });
+      }
+      if (btn.dataset.act === "delete") {
+        if (!confirm(`${key} 를 삭제 목록으로 옮길까요?\n(완전 삭제가 아니라 따로 모아둡니다)`)) {
+          return;
+        }
+        await admin(`/admin/licenses/${encodeURIComponent(key)}/delete`, { method: "POST" });
+        els.issueMsg.hidden = false;
+        els.issueMsg.textContent = `${key} 삭제 목록으로 이동`;
+      }
+      if (btn.dataset.act === "restore") {
+        await admin(`/admin/licenses/${encodeURIComponent(key)}/restore`, { method: "POST" });
+        els.issueMsg.hidden = false;
+        els.issueMsg.textContent = `${key} 복원됨`;
       }
       await loadList();
     } catch (e) {

@@ -7,11 +7,14 @@ from pydantic import BaseModel, Field
 from license_service import (
     PLAN_DEFAULTS,
     activate_license,
+    count_deleted_licenses,
     create_license,
+    delete_license,
     extend_license,
     get_license,
     list_licenses,
     plan_label,
+    restore_license,
     set_note,
     suspend_license,
 )
@@ -59,8 +62,20 @@ class AdminImportRequest(BaseModel):
 
 
 @router.get("/licenses", dependencies=[Depends(require_admin)])
-def admin_list_licenses():
-    return {"licenses": list_licenses(), "plans": PLAN_DEFAULTS}
+def admin_list_licenses(deleted: bool = False):
+    if deleted:
+        return {
+            "licenses": list_licenses(deleted_only=True),
+            "plans": PLAN_DEFAULTS,
+            "deleted_count": count_deleted_licenses(),
+            "view": "deleted",
+        }
+    return {
+        "licenses": list_licenses(),
+        "plans": PLAN_DEFAULTS,
+        "deleted_count": count_deleted_licenses(),
+        "view": "active",
+    }
 
 
 @router.post("/licenses", dependencies=[Depends(require_admin)])
@@ -128,6 +143,22 @@ def admin_suspend_license(license_key: str):
 def admin_activate_license(license_key: str):
     try:
         return activate_license(license_key)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e
+
+
+@router.post("/licenses/{license_key}/delete", dependencies=[Depends(require_admin)])
+def admin_delete_license(license_key: str):
+    try:
+        return delete_license(license_key)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
+
+@router.post("/licenses/{license_key}/restore", dependencies=[Depends(require_admin)])
+def admin_restore_license(license_key: str):
+    try:
+        return restore_license(license_key)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
 
