@@ -1,4 +1,5 @@
-import { AiProvider, GeneratedLogo, GenerationMode, ImageSize } from '@/types';
+import { AiProvider, GeneratedLogo, GenerationMode, ImageSize, Locale } from '@/types';
+import { localizeApiError } from '@/lib/apiErrorMessage';
 import { normalizeApiBase } from '@/lib/config';
 import { LicenseApiError } from '@/lib/licenseApi';
 
@@ -26,6 +27,8 @@ interface GenerateOptions {
   apiBaseUrl?: string;
   /** When true, use server /api/generate (CORS-safe). Default: web runtime. */
   useServerProxy?: boolean;
+  /** Used to localize known API error toasts (defaults to ko). */
+  locale?: Locale;
 }
 
 export interface GenerateResult {
@@ -304,6 +307,8 @@ async function generateViaServer(options: GenerateOptions): Promise<GenerateResu
     quota?: unknown;
   };
 
+  const locale = options.locale || 'ko';
+
   if (!res.ok) {
     const detail = data.detail;
     const message =
@@ -316,7 +321,7 @@ async function generateViaServer(options: GenerateOptions): Promise<GenerateResu
               )
               .join(', ')
           : `생성 오류 (${res.status})`;
-    throw new ApiError(message, res.status);
+    throw new ApiError(localizeApiError(message, locale), res.status);
   }
 
   const logos = (data.logos || []).map((logo, index) => ({
@@ -326,7 +331,9 @@ async function generateViaServer(options: GenerateOptions): Promise<GenerateResu
   }));
 
   if (logos.length === 0) {
-    throw new ApiError(data.errors?.[0] || '이미지 생성에 실패했습니다.');
+    throw new ApiError(
+      localizeApiError(data.errors?.[0] || '이미지 생성에 실패했습니다.', locale),
+    );
   }
 
   return {
@@ -334,7 +341,7 @@ async function generateViaServer(options: GenerateOptions): Promise<GenerateResu
     requested: data.requested ?? safeCount,
     succeeded: data.succeeded ?? logos.length,
     failed: data.failed ?? 0,
-    errors: data.errors || [],
+    errors: (data.errors || []).map((err) => localizeApiError(err, locale)),
     quotaConsumedOnServer: true,
     quota: data.quota,
   };

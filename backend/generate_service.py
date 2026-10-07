@@ -41,6 +41,36 @@ def _to_data_url(b64: str, mime: str = "image/png") -> str:
     return f"data:{mime};base64,{b64}"
 
 
+SAFETY_VIOLATION_KO = (
+    "안전 가이드라인에 위배되는 단어(성인/민감 콘텐츠)가 포함되어 "
+    "이미지를 생성할 수 없습니다. 프롬프트를 수정해 주세요."
+)
+
+
+def humanize_provider_error(message: str) -> str:
+    """Map OpenAI/Google safety / policy errors to a clear Korean user message."""
+    lower = (message or "").lower()
+    markers = (
+        "safety_violations",
+        "safety system",
+        "safety filter",
+        "rejected by the safety",
+        "content_policy",
+        "content policy",
+        "content filters",
+        "moderation",
+        "responsibleaipolicy",
+        "rejected as potentially",
+        "sexual content",
+        "violent content",
+    )
+    if any(m in lower for m in markers):
+        return SAFETY_VIOLATION_KO
+    if "prohibited" in lower and "content" in lower:
+        return SAFETY_VIOLATION_KO
+    return message
+
+
 def _openai_result_to_url(payload: Dict[str, Any]) -> Tuple[str, Optional[str]]:
     image = (payload.get("data") or [None])[0] or {}
     if image.get("b64_json"):
@@ -182,10 +212,12 @@ def generate_batch(
                 }
             )
         except Exception as exc:  # noqa: BLE001
-            errors.append(str(exc))
+            errors.append(humanize_provider_error(str(exc)))
 
     if not logos:
-        raise RuntimeError(errors[0] if errors else "이미지 생성에 실패했습니다.")
+        raise RuntimeError(
+            humanize_provider_error(errors[0] if errors else "이미지 생성에 실패했습니다.")
+        )
 
     return {
         "logos": logos,

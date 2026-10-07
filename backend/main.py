@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 from admin_routes import router as admin_router
 from ai_keys import configured_providers, resolve_provider_key
 from database import init_db
-from generate_service import generate_batch
+from generate_service import generate_batch, humanize_provider_error
 from license_service import (
     check_license,
     check_quota,
@@ -163,7 +163,9 @@ def api_generate(req: GenerateRequest):
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except Exception as exc:  # noqa: BLE001
         log_request(req.license_key, "generate", success=False)
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=500, detail=humanize_provider_error(str(exc))
+        ) from exc
 
     succeeded = int(result.get("succeeded") or 0)
     if succeeded > 0:

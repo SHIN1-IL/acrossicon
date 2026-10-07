@@ -240,6 +240,7 @@ export default function App({ runtime = 'extension' }: AppProps) {
         licenseKey: settings.licenseKey,
         apiBaseUrl: settings.apiBaseUrl,
         useServerProxy: true,
+        locale,
       });
 
       setResults(result.logos);
