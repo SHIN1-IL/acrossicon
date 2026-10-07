@@ -227,6 +227,8 @@ const ko: Dict = {
   'toast.historyDeleted': '히스토리에서 삭제했습니다.',
   'toast.historyCleared': '히스토리를 모두 삭제했습니다.',
   'toast.unknown': '알 수 없는 오류가 발생했습니다.',
+  'toast.safetyViolation':
+    '안전 가이드라인에 위배되는 단어(성인/민감 콘텐츠)가 포함되어 이미지를 생성할 수 없습니다. 프롬프트를 수정해 주세요.',
 };
 
 const en: Dict = {
@@ -452,6 +454,8 @@ const en: Dict = {
   'toast.historyDeleted': 'Removed from history.',
   'toast.historyCleared': 'History cleared.',
   'toast.unknown': 'An unknown error occurred.',
+  'toast.safetyViolation':
+    'Your prompt includes words that violate safety guidelines (adult/sensitive content), so the image could not be generated. Please edit the prompt and try again.',
 };
 
 const dictionaries: Record<Locale, Dict> = { ko, en };

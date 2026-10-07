@@ -16,7 +16,7 @@ PLAN_DEFAULTS = {
     "premium": {"daily_limit": 20, "monthly_limit": 120},
     "family_standard": {"daily_limit": 10, "monthly_limit": 60},
     "family_premium": {"daily_limit": 20, "monthly_limit": 120},
-    "admin_test": {"daily_limit": 20, "monthly_limit": 999999},
+    "admin_test": {"daily_limit": 30, "monthly_limit": 999999},
 }
 
 PLAN_LABELS = {

@@ -8,6 +8,7 @@ import { SettingsPanel } from '@/components/SettingsPanel';
 import { Toast } from '@/components/Toast';
 import { useToast } from '@/hooks/useToast';
 import { t } from '@/i18n';
+import { localizeApiError } from '@/lib/apiErrorMessage';
 import { estimateGenerationCost } from '@/lib/costEstimate';
 import { ApiError, generateImages } from '@/lib/imageApi';
 import { toPersistedDataUrl } from '@/lib/imageActions';
@@ -276,19 +277,19 @@ export default function App({ runtime = 'extension' }: AppProps) {
           'info',
         );
         if (result.errors[0]) {
-          push(result.errors[0], 'error');
+          push(localizeApiError(result.errors[0], locale), 'error');
         }
       } else {
         push(t(locale, 'toast.success', { n: result.succeeded }), 'success');
       }
     } catch (error) {
-      const message =
+      const raw =
         error instanceof ApiError || error instanceof LicenseApiError
           ? error.message
           : error instanceof Error
             ? error.message
-            : t(locale, 'toast.unknown');
-      push(message, 'error');
+            : '';
+      push(localizeApiError(raw || t(locale, 'toast.unknown'), locale), 'error');
     } finally {
       setLoading(false);
     }
