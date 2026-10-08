@@ -20,9 +20,9 @@ const COLOR_PALETTE_MAP: Record<Exclude<ColorTheme, 'Custom'>, string> = {
 const LAYOUT_DIRECTIVES: Record<LogoLayout, string> = {
   icon: "Icon-only logo mark: abstract symbol or emblem only. Do NOT include any letters, words, brand name typography, or readable text. No slogans.",
   icon_text:
-    "Combined logo lockup: a distinctive symbol PLUS clean brand-name wordmark reading exactly '{brand}'. Balanced icon+text composition, legible sans-serif lettering, no distorted or misspelled text.",
+    "Combined logo lockup: a distinctive symbol PLUS clean brand-name wordmark reading exactly «{brand}». Balanced icon+text composition; every letter of «{brand}» must be character-perfect (no typos, no gibberish).",
   wordmark:
-    "Wordmark-first logo: typography-led design featuring the brand name '{brand}' as the primary element. Optional tiny supporting mark only if it does not overpower the text. Crisp, readable letters, no gibberish text.",
+    "Wordmark-first logo: typography-led design featuring the brand name «{brand}» as the primary element. Optional tiny supporting mark only if it does not overpower the text. Every glyph of «{brand}» must be sharp, correctly spelled, and undistorted.",
 };
 
 const SHAPE_DIRECTIVES: Record<LogoShape, string> = {
@@ -124,6 +124,60 @@ const PRODUCT_REINTERPRET: Record<ReinterpretStrength, string> = {
 const NO_TEXT_RULE =
   'Absolutely no text, letters, numbers, words, logos-as-type, captions, or watermarks in the image.';
 
+/**
+ * Text Accuracy Engine — forces character-perfect on-image copy.
+ * Image models often invent/misspell glyphs; these locks + spell guides reduce that.
+ */
+function spellingChecklist(text: string): string {
+  const trimmed = text.trim();
+  if (!trimmed) return '';
+  const chars = [...trimmed].map((ch) => (ch === ' ' ? '·' : ch)).join('-');
+  const words = trimmed.split(/\s+/).filter(Boolean);
+  const wordGuides = words
+    .map((w) => `«${w}» (${[...w].join('-')})`)
+    .join('; ');
+  return `Verify glyph-by-glyph: [${chars}] (len=${trimmed.length}). Word locks: ${wordGuides}.`;
+}
+
+function exactRenderLine(role: string, text: string): string {
+  const t = text.trim();
+  return appendParts([
+    `TEXT-LOCK/${role}: paint the string EXACTLY «${t}» — identical characters, spacing, punctuation, and language (Latin/Hangul/digits).`,
+    spellingChecklist(t),
+    `Self-check: read the rendered ${role} back; it must equal «${t}» with zero typos, zero mirrored letters, zero fused glyphs, zero invented syllables.`,
+  ]);
+}
+
+/** Build a high-priority accuracy block for every user string that must appear in the image. */
+export function textAccuracyEngine(
+  entries: Array<{ role: string; text: string }>,
+): string {
+  const valid = entries
+    .map((e) => ({ role: e.role, text: e.text.trim() }))
+    .filter((e) => e.text.length > 0);
+  if (valid.length === 0) return '';
+
+  return appendParts([
+    '=== TEXT ACCURACY ENGINE (highest priority over style) ===',
+    'All on-image lettering must pass an automatic spelling check against the TEXT-LOCK strings.',
+    'Prefer plain, high-contrast, professional sans-serif / clean Hangul over decorative fonts that distort glyphs.',
+    'Never invent extra words, slogans, prices, URLs, or watermarks beyond the locked strings.',
+    'Never replace locked text with similar-looking wrong letters (e.g. rn↔m, I↔l, ㅇ↔o, ㅏ↔ㅓ).',
+    ...valid.map((e) => exactRenderLine(e.role, e.text)),
+    `Locked string count: ${valid.length}. Every locked string must appear once, spelled perfectly.`,
+    '=== END TEXT ACCURACY ENGINE ===',
+  ]);
+}
+
+function requirementsTextAccuracy(values: CreatorFormValues): string {
+  const req = values.requirements.trim();
+  if (!req) return '';
+  return appendParts([
+    'If user requirements specify any on-image wording, quote, slogan, or label, render that wording character-perfect — do not paraphrase or invent alternate spelling.',
+    spellingChecklist(req.length <= 80 ? req : req.slice(0, 80)),
+  ]);
+}
+
 export function resolveColorPalette(theme: ColorTheme, customColor?: string): string {
   if (theme === 'Custom') {
     return customColor?.trim() || 'user-defined custom palette';
@@ -182,6 +236,10 @@ export function buildLogoPrompt(values: CreatorFormValues, variationIndex = 0): 
     ? `Transform the provided reference image into an original professional logo. ${LOGO_REINTERPRET[values.reinterpret]}`
     : 'Create an original professional logo from scratch.';
 
+  const accuracy = allowText
+    ? textAccuracyEngine([{ role: 'brand-wordmark', text: brandName }])
+    : '';
+
   const base = appendParts([
     sourcePart,
     `${brandPart}, theme of '${keywords}', color palette '${colorTheme}'.`,
@@ -191,9 +249,13 @@ export function buildLogoPrompt(values: CreatorFormValues, variationIndex = 0): 
     SHAPE_DIRECTIVES[shape],
     'Flat minimalist design, modern tech aesthetic, clean geometric lines, high contrast, solid white background, vector emblem style, centered composition, no realistic photos, no complex gradients, ultra-sharp vector aesthetic, 4k resolution.',
     allowText
-      ? 'Text must be sharp, correctly spelled, and not distorted.'
+      ? appendParts([
+          accuracy,
+          'Wordmark typography must be sharp, kerned evenly, and character-perfect — regenerate mental proofreading before output.',
+        ])
       : NO_TEXT_RULE,
     requirementsDirective(values),
+    allowText ? requirementsTextAccuracy(values) : '',
   ]);
 
   if (variationIndex === 0) return base;
@@ -219,7 +281,7 @@ export function buildProductPrompt(
   const textLines: Array<string | false | '' | undefined> = [];
   if (brand) {
     textLines.push(
-      `MANDATORY: render the brand / service name EXACTLY as '${brand}' as a clean wordmark or label in a readable optimal position (correct spelling, sharp type, no gibberish).`,
+      `MANDATORY: render the brand / service name EXACTLY as '${brand}' as a clean wordmark or label in a readable optimal position.`,
     );
   } else {
     textLines.push('Do not invent or render any brand name or logo wordmark.');
@@ -227,7 +289,7 @@ export function buildProductPrompt(
 
   if (product) {
     textLines.push(
-      `MANDATORY: render the product name EXACTLY as '${product}' on the banner (legible product title / label, correct spelling, no gibberish).`,
+      `MANDATORY: render the product name EXACTLY as '${product}' on the banner (legible product title / label).`,
     );
   } else {
     textLines.push(
@@ -245,9 +307,18 @@ export function buildProductPrompt(
     );
   }
 
-  if (points) {
+  const pointItems = points
+    ? points
+        .split(/[\n,|/]+/)
+        .map((p) => p.trim())
+        .filter(Boolean)
+    : [];
+
+  if (pointItems.length > 0) {
     textLines.push(
-      `MANDATORY: render supporting highlight points EXACTLY from: '${points}' as short badges or bullet chips only — do not add extra points.`,
+      `MANDATORY: render supporting highlight points EXACTLY as these chips only: ${pointItems
+        .map((p) => `«${p}»`)
+        .join(', ')} — do not add, merge, or rephrase points.`,
     );
   } else {
     textLines.push(
@@ -255,9 +326,20 @@ export function buildProductPrompt(
     );
   }
 
+  const accuracyEntries: Array<{ role: string; text: string }> = [];
+  if (brand) accuracyEntries.push({ role: 'brand', text: brand });
+  if (product) accuracyEntries.push({ role: 'product-name', text: product });
+  if (headline) accuracyEntries.push({ role: 'headline', text: headline });
+  pointItems.forEach((p, i) =>
+    accuracyEntries.push({ role: `highlight-${i + 1}`, text: p }),
+  );
+
   textLines.push(
     hasOnImageCopy
-      ? 'Compose only the user-provided copy above with strong contrast and clear hierarchy. Do NOT invent extra slogans, CTAs, prices, or words beyond what the user typed.'
+      ? appendParts([
+          textAccuracyEngine(accuracyEntries),
+          'Compose only the locked user copy with strong contrast and clear hierarchy.',
+        ])
       : `${NO_TEXT_RULE} Leave clean space for later text overlay.`,
   );
 
@@ -294,6 +376,7 @@ export function buildProductPrompt(
     textPart,
     'High contrast, sharp focus, website-ready, no watermarks, no cluttered UI chrome, 4k quality.',
     requirementsDirective(values),
+    hasOnImageCopy ? requirementsTextAccuracy(values) : '',
   ]);
 
   if (variationIndex === 0) return base;
@@ -317,17 +400,23 @@ export function buildHomePrompt(
 
   if (hasOnImageCopy) {
     placementPart = TEXT_PLACEMENT[values.textPlacement];
+    const accuracyEntries: Array<{ role: string; text: string }> = [];
+    if (brand) accuracyEntries.push({ role: 'brand', text: brand });
+    if (title) accuracyEntries.push({ role: 'hero-headline', text: title });
+    if (subtitle) accuracyEntries.push({ role: 'hero-subtitle', text: subtitle });
+
     textPart = appendParts([
       brand
-        ? `MANDATORY: render the brand / service name EXACTLY as '${brand}' as a clean wordmark or logo-type in a readable spot (often near the headline block or a subtle corner lockup). Correct spelling, sharp legible type, no gibberish.`
+        ? `MANDATORY: render the brand / service name EXACTLY as '${brand}' as a clean wordmark or logo-type in a readable spot (often near the headline block or a subtle corner lockup).`
         : 'Do not invent a brand name or logo wordmark.',
       title
-        ? `MANDATORY: render the hero headline EXACTLY as '${title}' (correct spelling, sharp legible type, no gibberish).`
+        ? `MANDATORY: render the hero headline EXACTLY as '${title}'.`
         : '',
       subtitle
         ? `MANDATORY: render the supporting subtitle EXACTLY as '${subtitle}' under/near the headline with clear hierarchy (smaller than the headline).`
         : '',
-      'Compose all provided copy in the most readable optimal position for a website hero: strong contrast, adequate margins, not overlapping busy details.',
+      textAccuracyEngine(accuracyEntries),
+      'Compose all locked copy in the most readable optimal position for a website hero: strong contrast, adequate margins, not overlapping busy details.',
       'Do NOT invent extra slogans, CTAs, fake brand names, or any words beyond the brand name / headline / subtitle the user provided.',
     ]);
   } else {
@@ -361,6 +450,7 @@ export function buildHomePrompt(
     textPart,
     'Website homepage banner aesthetic, high resolution, no watermarks, no stock-photo logos, polished and commercial.',
     requirementsDirective(values),
+    hasOnImageCopy ? requirementsTextAccuracy(values) : '',
   ]);
 
   if (variationIndex === 0) return base;
