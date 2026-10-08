@@ -299,6 +299,18 @@ export default function App({ runtime = 'extension' }: AppProps) {
   const handleDeleteHistoryItem = async (id: string) => {
     const next = await removeHistoryItem(id);
     setHistory(next);
+    setResults((prev) => prev.filter((item) => item.id !== id));
+    push(t(locale, 'toast.historyDeleted'), 'success');
+  };
+
+  const handleDeleteResultItem = async (id: string) => {
+    setResults((prev) => prev.filter((item) => item.id !== id));
+    try {
+      const next = await removeHistoryItem(id);
+      setHistory(next);
+    } catch {
+      // history may not contain this id yet
+    }
     push(t(locale, 'toast.historyDeleted'), 'success');
   };
 
@@ -317,7 +329,7 @@ export default function App({ runtime = 'extension' }: AppProps) {
   }
 
   const shellClass = isWeb
-    ? 'mx-auto flex h-full w-full max-w-[1100px] flex-col overflow-hidden rounded-[10px] border border-surface-border bg-surface-raised md:my-4 md:h-[calc(100%-2rem)]'
+    ? 'mx-auto flex h-full w-full max-w-[1200px] flex-col overflow-hidden rounded-[10px] border border-surface-border bg-surface-raised md:my-4 md:h-[calc(100%-2rem)]'
     : 'flex h-full min-w-panel flex-col bg-surface';
 
   return (
@@ -366,6 +378,7 @@ export default function App({ runtime = 'extension' }: AppProps) {
             loading={loading}
             skeletonCount={settings.imageCount}
             onToast={push}
+            onDeleteResultItem={handleDeleteResultItem}
             onDeleteHistoryItem={handleDeleteHistoryItem}
             onClearHistory={handleClearHistory}
           />

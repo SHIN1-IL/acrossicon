@@ -209,6 +209,7 @@ def generate_batch(
                     "brandName": brand_name,
                     "createdAt": 0,
                     "mode": mode,
+                    "size": size,
                 }
             )
         except Exception as exc:  # noqa: BLE001

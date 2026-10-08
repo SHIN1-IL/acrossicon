@@ -239,6 +239,7 @@ async function generateOne(
       brandName,
       createdAt: Date.now(),
       mode,
+      size,
     };
   }
 
@@ -251,6 +252,7 @@ async function generateOne(
       brandName,
       createdAt: Date.now(),
       mode,
+      size,
     };
   }
 
@@ -262,6 +264,7 @@ async function generateOne(
     brandName,
     createdAt: Date.now(),
     mode,
+    size,
   };
 }
 
@@ -328,6 +331,8 @@ async function generateViaServer(options: GenerateOptions): Promise<GenerateResu
     ...logo,
     id: logo.id || `${Date.now()}-${index}`,
     createdAt: logo.createdAt || Date.now(),
+    size: logo.size || options.size,
+    mode: logo.mode || options.mode,
   }));
 
   if (logos.length === 0) {

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState, type CSSProperties, type ReactNode } from 'react';
 import {
   ClipboardCopy,
   Download,
@@ -6,7 +6,7 @@ import {
   FileText,
   Trash2,
 } from 'lucide-react';
-import { GeneratedLogo } from '@/types';
+import { GeneratedLogo, ImageSize } from '@/types';
 import { removeWhiteBackground } from '@/lib/bgRemove';
 import {
   copyImageToClipboard,
@@ -19,6 +19,15 @@ interface LogoCardProps {
   onToast: (message: string, type?: 'error' | 'success' | 'info') => void;
   onDelete?: (id: string) => void;
   showCheckerboard?: boolean;
+  /** main = gallery preview; thumb = history rail */
+  variant?: 'main' | 'thumb';
+}
+
+function aspectRatioStyle(size?: ImageSize): CSSProperties {
+  if (!size) return { aspectRatio: '1 / 1' };
+  const [w, h] = size.split('x').map(Number);
+  if (!w || !h) return { aspectRatio: '1 / 1' };
+  return { aspectRatio: `${w} / ${h}` };
 }
 
 export function LogoCard({
@@ -26,8 +35,10 @@ export function LogoCard({
   onToast,
   onDelete,
   showCheckerboard = false,
+  variant = 'main',
 }: LogoCardProps) {
   const [busy, setBusy] = useState(false);
+  const isThumb = variant === 'thumb';
 
   const runAction = async (action: () => Promise<void>, success: string) => {
     setBusy(true);
@@ -41,83 +52,92 @@ export function LogoCard({
     }
   };
 
+  const save = () =>
+    runAction(
+      () => downloadPng(logo.url, logo.brandName),
+      'PNG 다운로드를 시작했습니다.',
+    );
+
   return (
-    <article className="group relative aspect-square overflow-hidden rounded-xl ring-1 ring-surface-border">
+    <article
+      className={`group relative overflow-hidden rounded-xl ring-1 ring-surface-border ${
+        isThumb ? 'w-full' : 'w-full max-w-full'
+      }`}
+    >
       <div
-        className={`absolute inset-0 ${
+        className={`relative w-full overflow-hidden ${
           showCheckerboard
             ? 'bg-[length:16px_16px] bg-[linear-gradient(45deg,#3f3f46_25%,transparent_25%),linear-gradient(-45deg,#3f3f46_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#3f3f46_75%),linear-gradient(-45deg,transparent_75%,#3f3f46_75%)] bg-[position:0_0,0_8px,8px_-8px,-8px_0] bg-zinc-800'
-            : 'bg-white'
+            : 'bg-zinc-900'
         }`}
-      />
-      <img
-        src={logo.url}
-        alt={`${logo.brandName} logo`}
-        className="relative h-full w-full object-cover"
-        loading="lazy"
-      />
-
-      <div className="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/75 via-black/25 to-transparent opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">
-        <div className="mb-2 flex flex-wrap items-center justify-center gap-1.5 p-2">
-          <ActionButton
-            label="PNG 다운로드"
-            disabled={busy}
-            onClick={() =>
-              runAction(
-                () => downloadPng(logo.url, logo.brandName),
-                'PNG 다운로드를 시작했습니다.',
-              )
-            }
-          >
-            <Download className="h-3.5 w-3.5" />
-          </ActionButton>
-          <ActionButton
-            label="투명 배경 PNG"
-            disabled={busy}
-            onClick={() =>
-              runAction(async () => {
-                const transparent = await removeWhiteBackground(logo.url);
-                await downloadPng(transparent, logo.brandName, 'transparent');
-              }, '투명 배경 PNG 다운로드를 시작했습니다.')
-            }
-          >
-            <Eraser className="h-3.5 w-3.5" />
-          </ActionButton>
-          <ActionButton
-            label="클립보드 복사"
-            disabled={busy}
-            onClick={() =>
-              runAction(
-                () => copyImageToClipboard(logo.url),
-                '이미지가 클립보드에 복사되었습니다.',
-              )
-            }
-          >
-            <ClipboardCopy className="h-3.5 w-3.5" />
-          </ActionButton>
-          <ActionButton
-            label="프롬프트 복사"
-            disabled={busy}
-            onClick={() =>
-              runAction(() => copyText(logo.prompt), '프롬프트를 복사했습니다.')
-            }
-          >
-            <FileText className="h-3.5 w-3.5" />
-          </ActionButton>
-          {onDelete && (
-            <ActionButton
-              label="히스토리에서 삭제"
-              disabled={busy}
-              onClick={() => onDelete(logo.id)}
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </ActionButton>
-          )}
-        </div>
+        style={aspectRatioStyle(logo.size)}
+      >
+        <img
+          src={logo.url}
+          alt={`${logo.brandName} image`}
+          className="absolute inset-0 h-full w-full object-contain"
+          loading="lazy"
+        />
       </div>
 
-      <div className="pointer-events-none absolute left-2 top-2 rounded bg-black/55 px-1.5 py-0.5 text-[10px] font-medium text-zinc-200 opacity-0 backdrop-blur transition group-hover:opacity-100">
-        {logo.brandName}
+      <div
+        className={`flex items-center justify-center gap-1 border-t border-surface-border bg-surface-raised/95 p-1.5 ${
+          isThumb ? 'flex-col' : 'flex-wrap'
+        }`}
+      >
+        <ActionButton label="저장 (PNG)" disabled={busy} onClick={save} wide={!isThumb}>
+          <Download className={isThumb ? 'h-3 w-3' : 'h-3.5 w-3.5'} />
+          {!isThumb && <span className="text-[11px]">저장</span>}
+        </ActionButton>
+        {onDelete && (
+          <ActionButton
+            label="삭제"
+            disabled={busy}
+            danger
+            wide={!isThumb}
+            onClick={() => onDelete(logo.id)}
+          >
+            <Trash2 className={isThumb ? 'h-3 w-3' : 'h-3.5 w-3.5'} />
+            {!isThumb && <span className="text-[11px]">삭제</span>}
+          </ActionButton>
+        )}
+        {!isThumb && (
+          <>
+            <ActionButton
+              label="투명 배경 PNG"
+              disabled={busy}
+              onClick={() =>
+                runAction(async () => {
+                  const transparent = await removeWhiteBackground(logo.url);
+                  await downloadPng(transparent, logo.brandName, 'transparent');
+                }, '투명 배경 PNG 다운로드를 시작했습니다.')
+              }
+            >
+              <Eraser className="h-3.5 w-3.5" />
+            </ActionButton>
+            <ActionButton
+              label="클립보드 복사"
+              disabled={busy}
+              onClick={() =>
+                runAction(
+                  () => copyImageToClipboard(logo.url),
+                  '이미지가 클립보드에 복사되었습니다.',
+                )
+              }
+            >
+              <ClipboardCopy className="h-3.5 w-3.5" />
+            </ActionButton>
+            <ActionButton
+              label="프롬프트 복사"
+              disabled={busy}
+              onClick={() =>
+                runAction(() => copyText(logo.prompt), '프롬프트를 복사했습니다.')
+              }
+            >
+              <FileText className="h-3.5 w-3.5" />
+            </ActionButton>
+          </>
+        )}
       </div>
     </article>
   );
@@ -128,11 +148,15 @@ function ActionButton({
   label,
   onClick,
   disabled,
+  danger,
+  wide,
 }: {
   children: ReactNode;
   label: string;
   onClick: () => void;
   disabled?: boolean;
+  danger?: boolean;
+  wide?: boolean;
 }) {
   return (
     <button
@@ -141,7 +165,13 @@ function ActionButton({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900/90 text-zinc-100 ring-1 ring-white/10 backdrop-blur transition hover:bg-accent-deep hover:text-[#0c0a09] disabled:opacity-50"
+      className={`inline-flex items-center justify-center gap-1 rounded-lg ring-1 backdrop-blur transition disabled:opacity-50 ${
+        wide ? 'h-8 px-2.5' : 'h-7 w-7'
+      } ${
+        danger
+          ? 'bg-rose-950/80 text-rose-200 ring-rose-500/30 hover:bg-rose-600 hover:text-white'
+          : 'bg-zinc-900/90 text-zinc-100 ring-white/10 hover:bg-accent-deep hover:text-[#0c0a09]'
+      }`}
     >
       {children}
     </button>

@@ -107,6 +107,8 @@ export interface GeneratedLogo {
   brandName: string;
   createdAt: number;
   mode?: GenerationMode;
+  /** Generation size, used to preserve aspect ratio in the gallery. */
+  size?: ImageSize;
 }
 
 export interface ToastMessage {
