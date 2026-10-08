@@ -30,6 +30,24 @@ async function canvasToBlob(
   });
 }
 
+async function convertToPngBlob(blob: Blob): Promise<Blob> {
+  const bitmap = await createImageBitmap(blob);
+  const canvas = document.createElement('canvas');
+  canvas.width = bitmap.width;
+  canvas.height = bitmap.height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    bitmap.close();
+    throw new Error('Canvas를 초기화할 수 없습니다.');
+  }
+  ctx.drawImage(bitmap, 0, 0);
+  bitmap.close();
+
+  const png = await canvasToBlob(canvas, 'image/png');
+  if (!png) throw new Error('PNG 변환에 실패했습니다.');
+  return png;
+}
+
 /**
  * Shrink images before history persistence to reduce storage pressure.
  * Prefers WebP (keeps transparency) then PNG; falls back to original bytes.
@@ -69,6 +87,10 @@ export async function toPersistedDataUrl(url: string): Promise<string> {
   return compressForHistory(blob);
 }
 
+/**
+ * Always re-encode to a real PNG before download so Finder/OS preview works
+ * (history may store WebP data URLs that must not be saved as .png).
+ */
 export async function downloadPng(
   url: string,
   brandName: string,
@@ -76,52 +98,49 @@ export async function downloadPng(
 ): Promise<void> {
   const tag = suffix ? `-${suffix}` : '';
   const filename = `acrossicon-${sanitizeFilename(brandName)}${tag}-${Date.now()}.png`;
+  const source = await fetchImageBlob(url);
+  const pngBlob = await convertToPngBlob(source);
+  const objectUrl = URL.createObjectURL(pngBlob);
 
-  if (typeof chrome !== 'undefined' && chrome.downloads?.download) {
-    await chrome.downloads.download({
-      url,
-      filename,
-      saveAs: true,
-    });
-    return;
+  try {
+    if (typeof chrome !== 'undefined' && chrome.downloads?.download) {
+      // Prefer blob URL; fall back to data URL if the browser rejects blob: downloads.
+      try {
+        await chrome.downloads.download({
+          url: objectUrl,
+          filename,
+          saveAs: true,
+        });
+      } catch {
+        const dataUrl = await blobToDataUrl(pngBlob);
+        await chrome.downloads.download({
+          url: dataUrl,
+          filename,
+          saveAs: true,
+        });
+      }
+      return;
+    }
+
+    const anchor = document.createElement('a');
+    anchor.href = objectUrl;
+    anchor.download = filename;
+    anchor.rel = 'noopener';
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+  } finally {
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
   }
-
-  const blob = await fetchImageBlob(url);
-  const objectUrl = URL.createObjectURL(blob);
-  const anchor = document.createElement('a');
-  anchor.href = objectUrl;
-  anchor.download = filename;
-  anchor.click();
-  URL.revokeObjectURL(objectUrl);
 }
 
 export async function copyImageToClipboard(url: string): Promise<void> {
   const blob = await fetchImageBlob(url);
-  const pngBlob = blob.type === 'image/png' ? blob : await convertToPngBlob(blob);
+  const pngBlob = await convertToPngBlob(blob);
 
   await navigator.clipboard.write([
     new ClipboardItem({ 'image/png': pngBlob }),
   ]);
-}
-
-async function convertToPngBlob(blob: Blob): Promise<Blob> {
-  const bitmap = await createImageBitmap(blob);
-  const canvas = document.createElement('canvas');
-  canvas.width = bitmap.width;
-  canvas.height = bitmap.height;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('Canvas를 초기화할 수 없습니다.');
-  ctx.drawImage(bitmap, 0, 0);
-
-  return new Promise((resolve, reject) => {
-    canvas.toBlob((result) => {
-      if (!result) {
-        reject(new Error('PNG 변환에 실패했습니다.'));
-        return;
-      }
-      resolve(result);
-    }, 'image/png');
-  });
 }
 
 export async function copyText(text: string): Promise<void> {

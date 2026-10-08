@@ -78,31 +78,35 @@ export function LogoCard({
           className="absolute inset-0 h-full w-full object-contain"
           loading="lazy"
         />
-      </div>
 
-      <div
-        className={`flex items-center justify-center gap-1 border-t border-surface-border bg-surface-raised/95 p-1.5 ${
-          isThumb ? 'flex-col' : 'flex-wrap'
-        }`}
-      >
-        <ActionButton label="저장 (PNG)" disabled={busy} onClick={save} wide={!isThumb}>
-          <Download className={isThumb ? 'h-3 w-3' : 'h-3.5 w-3.5'} />
-          {!isThumb && <span className="text-[11px]">저장</span>}
-        </ActionButton>
-        {onDelete && (
-          <ActionButton
-            label="삭제"
-            disabled={busy}
-            danger
-            wide={!isThumb}
-            onClick={() => onDelete(logo.id)}
-          >
-            <Trash2 className={isThumb ? 'h-3 w-3' : 'h-3.5 w-3.5'} />
-            {!isThumb && <span className="text-[11px]">삭제</span>}
+        {/* Primary actions overlaid on the image */}
+        <div
+          className={`absolute z-10 flex gap-1 ${
+            isThumb
+              ? 'right-1 top-1 flex-col'
+              : 'right-2 top-2 flex-row'
+          }`}
+        >
+          <ActionButton label="저장 (PNG)" disabled={busy} onClick={save} solid>
+            <Download className={isThumb ? 'h-3.5 w-3.5' : 'h-4 w-4'} />
+            {!isThumb && <span className="text-[11px] font-semibold">저장</span>}
           </ActionButton>
-        )}
+          {onDelete && (
+            <ActionButton
+              label="삭제"
+              disabled={busy}
+              danger
+              solid
+              onClick={() => onDelete(logo.id)}
+            >
+              <Trash2 className={isThumb ? 'h-3.5 w-3.5' : 'h-4 w-4'} />
+              {!isThumb && <span className="text-[11px] font-semibold">삭제</span>}
+            </ActionButton>
+          )}
+        </div>
+
         {!isThumb && (
-          <>
+          <div className="absolute inset-x-0 bottom-0 z-10 flex flex-wrap items-center justify-center gap-1.5 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-2 pb-2 pt-8 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
             <ActionButton
               label="투명 배경 PNG"
               disabled={busy}
@@ -114,6 +118,7 @@ export function LogoCard({
               }
             >
               <Eraser className="h-3.5 w-3.5" />
+              <span className="text-[11px]">투명</span>
             </ActionButton>
             <ActionButton
               label="클립보드 복사"
@@ -126,6 +131,7 @@ export function LogoCard({
               }
             >
               <ClipboardCopy className="h-3.5 w-3.5" />
+              <span className="text-[11px]">복사</span>
             </ActionButton>
             <ActionButton
               label="프롬프트 복사"
@@ -135,8 +141,9 @@ export function LogoCard({
               }
             >
               <FileText className="h-3.5 w-3.5" />
+              <span className="text-[11px]">프롬프트</span>
             </ActionButton>
-          </>
+          </div>
         )}
       </div>
     </article>
@@ -149,14 +156,14 @@ function ActionButton({
   onClick,
   disabled,
   danger,
-  wide,
+  solid,
 }: {
   children: ReactNode;
   label: string;
   onClick: () => void;
   disabled?: boolean;
   danger?: boolean;
-  wide?: boolean;
+  solid?: boolean;
 }) {
   return (
     <button
@@ -165,12 +172,12 @@ function ActionButton({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className={`inline-flex items-center justify-center gap-1 rounded-lg ring-1 backdrop-blur transition disabled:opacity-50 ${
-        wide ? 'h-8 px-2.5' : 'h-7 w-7'
+      className={`inline-flex items-center justify-center gap-1 rounded-lg px-2 shadow-md ring-1 backdrop-blur transition disabled:opacity-50 ${
+        solid ? 'h-8 min-w-8' : 'h-8 px-2.5'
       } ${
         danger
-          ? 'bg-rose-950/80 text-rose-200 ring-rose-500/30 hover:bg-rose-600 hover:text-white'
-          : 'bg-zinc-900/90 text-zinc-100 ring-white/10 hover:bg-accent-deep hover:text-[#0c0a09]'
+          ? 'bg-rose-600/95 text-white ring-rose-300/40 hover:bg-rose-500'
+          : 'bg-zinc-950/90 text-zinc-50 ring-white/20 hover:bg-accent-deep hover:text-[#0c0a09]'
       }`}
     >
       {children}
