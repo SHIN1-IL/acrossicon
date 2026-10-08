@@ -20,11 +20,53 @@ async function blobToDataUrl(blob: Blob): Promise<string> {
   });
 }
 
-/** Persist remote image URLs as data URLs so history survives URL expiry. */
-export async function toPersistedDataUrl(url: string): Promise<string> {
-  if (url.startsWith('data:')) return url;
-  const blob = await fetchImageBlob(url);
+async function canvasToBlob(
+  canvas: HTMLCanvasElement,
+  type: string,
+  quality?: number,
+): Promise<Blob | null> {
+  return new Promise((resolve) => {
+    canvas.toBlob((result) => resolve(result), type, quality);
+  });
+}
+
+/**
+ * Shrink images before history persistence to reduce storage pressure.
+ * Prefers WebP (keeps transparency) then PNG; falls back to original bytes.
+ */
+async function compressForHistory(blob: Blob): Promise<string> {
+  try {
+    const bitmap = await createImageBitmap(blob);
+    const maxEdge = 1024;
+    const scale = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return blobToDataUrl(blob);
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+
+    const webp = await canvasToBlob(canvas, 'image/webp', 0.82);
+    if (webp && webp.size > 0 && webp.size < blob.size * 0.95) {
+      return blobToDataUrl(webp);
+    }
+    const png = await canvasToBlob(canvas, 'image/png');
+    if (png && png.size > 0 && png.size < blob.size) {
+      return blobToDataUrl(png);
+    }
+  } catch {
+    // fall through
+  }
   return blobToDataUrl(blob);
+}
+
+/** Persist remote/local images as compact data URLs so history survives URL expiry. */
+export async function toPersistedDataUrl(url: string): Promise<string> {
+  const blob = await fetchImageBlob(url);
+  return compressForHistory(blob);
 }
 
 export async function downloadPng(
