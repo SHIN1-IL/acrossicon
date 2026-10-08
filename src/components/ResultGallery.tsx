@@ -1,6 +1,7 @@
-import { type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { History, ImageOff, Images, Trash2 } from 'lucide-react';
 import { GeneratedLogo, Locale } from '@/types';
+import { HistoryThumb } from '@/components/HistoryThumb';
 import { LogoCard } from '@/components/LogoCard';
 import { t } from '@/i18n';
 
@@ -34,6 +35,20 @@ export function ResultGallery({
   onClearHistory,
 }: ResultGalleryProps) {
   const emptyResults = !loading && results.length === 0;
+  const [selectedHistoryId, setSelectedHistoryId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (
+      selectedHistoryId &&
+      !history.some((item) => item.id === selectedHistoryId)
+    ) {
+      setSelectedHistoryId(null);
+    }
+  }, [history, selectedHistoryId]);
+
+  const toggleHistorySelect = (id: string) => {
+    setSelectedHistoryId((prev) => (prev === id ? null : id));
+  };
 
   return (
     <section className="flex min-h-[280px] flex-1 flex-col px-3 pb-3 pt-2 sm:px-4">
@@ -127,23 +142,24 @@ export function ResultGallery({
               hint={t(locale, 'gallery.emptyHistoryHint')}
             />
           ) : (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3 overflow-y-auto pb-2">
               {history.map((logo) => (
-                <LogoCard
+                <HistoryThumb
                   key={logo.id}
                   logo={logo}
-                  variant="main"
-                  onToast={onToast}
+                  selected={selectedHistoryId === logo.id}
+                  onSelect={toggleHistorySelect}
                   onDelete={onDeleteHistoryItem}
+                  onToast={onToast}
                 />
               ))}
             </div>
           )}
         </div>
 
-        {/* Right history rail */}
-        <aside className="hidden w-[108px] shrink-0 flex-col border-l border-surface-border pl-2 min-[420px]:flex sm:w-[120px]">
-          <div className="mb-2 flex items-center justify-between gap-1">
+        {/* Right history rail — uniform thumbs, scroll, tap to enlarge + save/delete */}
+        <aside className="hidden w-[100px] shrink-0 flex-col border-l border-surface-border pl-2 min-[420px]:flex sm:w-[128px]">
+          <div className="mb-2 flex shrink-0 items-center justify-between gap-1">
             <div className="flex items-center gap-1 text-[11px] font-semibold text-zinc-400">
               <History className="h-3 w-3 text-accent" />
               {t(locale, 'gallery.history')}
@@ -165,19 +181,20 @@ export function ResultGallery({
               </button>
             )}
           </div>
-          <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pb-1">
+          <div className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto overscroll-contain pb-2 pr-0.5">
             {history.length === 0 ? (
               <p className="px-0.5 text-[10px] leading-relaxed text-zinc-600">
                 {t(locale, 'gallery.emptyHistoryHint')}
               </p>
             ) : (
               history.map((logo) => (
-                <LogoCard
+                <HistoryThumb
                   key={logo.id}
                   logo={logo}
-                  variant="thumb"
-                  onToast={onToast}
+                  selected={selectedHistoryId === logo.id}
+                  onSelect={toggleHistorySelect}
                   onDelete={onDeleteHistoryItem}
+                  onToast={onToast}
                 />
               ))
             )}
