@@ -71,7 +71,7 @@ def humanize_provider_error(message: str) -> str:
     if "api key not valid" in lower or "invalid api key" in lower:
         return (
             "Google/Gemini API 키가 올바르지 않습니다. "
-            "Render의 GEMINI_API_KEY에 Google AI Studio에서 복사한 AIzaSy... 키를 넣었는지 확인해 주세요. "
+            "Render의 GEMINI_API_KEY에 Google AI Studio에서 복사한 Gemini API 키(AIzaSy… 또는 AQ.…)를 넣었는지 확인해 주세요. "
             "앱 설정의 ADMIN-GEMINI는 라이선스 키이며 Render API 키와 다릅니다."
         )
     if "incorrect api key" in lower or "invalid_api_key" in lower:
@@ -147,11 +147,15 @@ def generate_openai(
 
 
 def generate_google(api_key: str, prompt: str, size: str) -> str:
-    url = f"{GOOGLE_IMAGEN}?key={api_key}"
+    # Auth keys (AQ.…) work reliably via x-goog-api-key; legacy AIza keys accept both.
+    url = GOOGLE_IMAGEN
     with httpx.Client(timeout=180.0) as client:
         res = client.post(
             url,
-            headers={"Content-Type": "application/json"},
+            headers={
+                "Content-Type": "application/json",
+                "x-goog-api-key": api_key,
+            },
             json={
                 "instances": [{"prompt": prompt}],
                 "parameters": {

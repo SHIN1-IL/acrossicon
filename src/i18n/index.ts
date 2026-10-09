@@ -168,7 +168,7 @@ const ko: Dict = {
   'settings.licenseHintAdminTest':
     'ADMIN-TEST: 서버 OpenAI로 생성합니다. 개인 API 키·제공자 선택은 필요 없습니다.',
   'settings.licenseHintAdminGemini':
-    'ADMIN-GEMINI: 서버 Google(Imagen)로 생성합니다. Render에 GEMINI_API_KEY(AIzaSy...)만 등록하면 됩니다. 앱에는 이 라이선스 키만 입력하세요.',
+    'ADMIN-GEMINI: 서버 Google(Imagen)로 생성합니다. Render에 GEMINI_API_KEY(AIzaSy… 또는 AQ.…)만 등록하면 됩니다. 앱에는 이 라이선스 키만 입력하세요.',
   'settings.apiBaseUrl': '라이선스 서버 URL',
   'settings.apiBaseUrlHint':
     '비우면 https://acrossicon.onrender.com 을 사용합니다. 로컬 백엔드면 http://127.0.0.1:8000',
@@ -236,7 +236,7 @@ const ko: Dict = {
   'toast.invalidApiKey':
     'API 키가 올바르지 않습니다. Render 환경변수의 키를 확인해 주세요.',
   'toast.invalidGeminiKey':
-    'Google API 키가 올바르지 않습니다. Render GEMINI_API_KEY에 Google AI Studio에서 복사한 AIzaSy... 전체를 넣었는지 확인하세요. ADMIN-GEMINI는 라이선스 키입니다.',
+    'Google API 키가 올바르지 않습니다. Render GEMINI_API_KEY에 Google AI Studio에서 복사한 키 전체(AIzaSy… 또는 AQ.…)를 넣었는지 확인하세요. ADMIN-GEMINI는 라이선스 키입니다.',
 };
 
 const en: Dict = {
@@ -400,7 +400,7 @@ const en: Dict = {
   'settings.licenseHintAdminTest':
     'ADMIN-TEST: images use server OpenAI. No personal API key or provider picker needed.',
   'settings.licenseHintAdminGemini':
-    'ADMIN-GEMINI: images use server Google (Imagen). Set GEMINI_API_KEY (AIzaSy…) on Render; enter only this license key in the app.',
+    'ADMIN-GEMINI: images use server Google (Imagen). Set GEMINI_API_KEY (AIzaSy… or AQ.…) on Render; enter only this license key in the app.',
   'settings.apiBaseUrl': 'License server URL',
   'settings.apiBaseUrlHint':
     'Defaults to https://acrossicon.onrender.com. Use http://127.0.0.1:8000 for local backend.',
@@ -471,7 +471,7 @@ const en: Dict = {
   'toast.invalidApiKey':
     'The API key is invalid. Check the key in your Render environment variables.',
   'toast.invalidGeminiKey':
-    'Invalid Google API key. Set GEMINI_API_KEY on Render to the full AIzaSy… key from Google AI Studio. ADMIN-GEMINI is a license key, not an API key.',
+    'Invalid Google API key. Set GEMINI_API_KEY on Render to the full AIzaSy… or AQ.… key from Google AI Studio. ADMIN-GEMINI is a license key, not an API key.',
 };
 
 const dictionaries: Record<Locale, Dict> = { ko, en };

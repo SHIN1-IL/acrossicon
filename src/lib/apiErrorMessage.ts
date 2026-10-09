@@ -45,7 +45,7 @@ export function localizeApiError(message: string, locale: Locale): string {
     return t(locale, 'toast.safetyViolation');
   }
   if (isInvalidApiKeyMessage(trimmed)) {
-    if (/google|gemini|aiza|render의 gemini/i.test(trimmed)) {
+    if (/google|gemini|aiza|aq\.|render의 gemini/i.test(trimmed)) {
       return t(locale, 'toast.invalidGeminiKey');
     }
     return t(locale, 'toast.invalidApiKey');
