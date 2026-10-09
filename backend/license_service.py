@@ -17,7 +17,6 @@ PLAN_DEFAULTS = {
     "family_standard": {"daily_limit": 20, "monthly_limit": 60},
     "family_premium": {"daily_limit": 30, "monthly_limit": 120},
     "admin_test": {"daily_limit": 30, "monthly_limit": 999999},
-    "admin_gemini": {"daily_limit": 30, "monthly_limit": 999999},
 }
 
 PLAN_LABELS = {
@@ -26,18 +25,9 @@ PLAN_LABELS = {
     "family_standard": "스탠다드 지인",
     "family_premium": "프리미엄 지인",
     "admin_test": "관리자테스트",
-    "admin_gemini": "ADMIN-GEMINI",
-}
-
-# Fixed admin keys → image provider (server AI keys)
-PLAN_PROVIDER = {
-    "admin_test": "openai",
-    "admin_gemini": "google",
 }
 
 ADMIN_TEST_KEY = "ADMIN-TEST"
-ADMIN_GEMINI_KEY = "ADMIN-GEMINI"
-PROTECTED_ADMIN_KEYS = frozenset({ADMIN_TEST_KEY, ADMIN_GEMINI_KEY})
 
 
 @dataclass
@@ -376,7 +366,7 @@ def activate_license(license_key: str) -> dict:
 def delete_license(license_key: str) -> dict:
     """Soft-delete: keep the row so it can be reviewed in the deleted list."""
     key = license_key.strip().upper()
-    if key in PROTECTED_ADMIN_KEYS:
+    if key == ADMIN_TEST_KEY:
         raise ValueError("관리자 테스트 키는 삭제할 수 없습니다.")
     lic = get_license(key)
     if not lic:
@@ -497,40 +487,23 @@ def sync_plan_limits() -> int:
     return updated
 
 
-def provider_for_plan(plan: str) -> Optional[str]:
-    """Return forced AI provider for admin/test plans, else None."""
-    return PLAN_PROVIDER.get((plan or "").strip().lower())
-
-
-def _upsert_fixed_admin_key(
-    *,
-    license_key: str,
-    plan: str,
-    note: str,
-) -> None:
-    defaults = PLAN_DEFAULTS[plan]
-    existing = get_license(license_key)
+def seed_admin_test_key() -> None:
+    existing = get_license(ADMIN_TEST_KEY)
+    defaults = PLAN_DEFAULTS["admin_test"]
     if existing:
         with get_db() as conn:
             conn.execute(
                 """
                 UPDATE licenses
-                SET plan = ?,
+                SET plan = 'admin_test',
                     daily_limit = ?,
                     monthly_limit = ?,
                     status = 'active',
                     expires_at = '2099-12-31',
-                    note = ?,
                     updated_at = datetime('now')
                 WHERE license_key = ?
                 """,
-                (
-                    plan,
-                    defaults["daily_limit"],
-                    defaults["monthly_limit"],
-                    note,
-                    license_key,
-                ),
+                (defaults["daily_limit"], defaults["monthly_limit"], ADMIN_TEST_KEY),
             )
         _persist_vault()
         return
@@ -541,29 +514,14 @@ def _upsert_fixed_admin_key(
             INSERT INTO licenses (
                 license_key, plan, expires_at, daily_limit, monthly_limit, note,
                 duration_days, started_at, status
-            ) VALUES (?, ?, '2099-12-31', ?, ?, ?, 0, ?, 'active')
+            ) VALUES (?, 'admin_test', '2099-12-31', ?, ?, ?, 0, ?, 'active')
             """,
             (
-                license_key,
-                plan,
+                ADMIN_TEST_KEY,
                 defaults["daily_limit"],
                 defaults["monthly_limit"],
-                note,
+                "관리자 테스트 고정 키",
                 today_kst().isoformat(),
             ),
         )
     _persist_vault()
-
-
-def seed_admin_test_key() -> None:
-    """Seed fixed admin keys: ADMIN-TEST (OpenAI) and ADMIN-GEMINI (Google/Gemini)."""
-    _upsert_fixed_admin_key(
-        license_key=ADMIN_TEST_KEY,
-        plan="admin_test",
-        note="관리자 테스트 고정 키 (OpenAI)",
-    )
-    _upsert_fixed_admin_key(
-        license_key=ADMIN_GEMINI_KEY,
-        plan="admin_gemini",
-        note="관리자 테스트 고정 키 (ADMIN-GEMINI / Google)",
-    )

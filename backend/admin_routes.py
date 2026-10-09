@@ -40,9 +40,7 @@ def require_admin(x_admin_token: str = Header(..., alias="X-Admin-Token")):
 
 
 class AdminCreateRequest(BaseModel):
-    plan: str = Field(
-        pattern="^(standard|premium|family_standard|family_premium|admin_test|admin_gemini)$"
-    )
+    plan: str = Field(pattern="^(standard|premium|family_standard|family_premium|admin_test)$")
     days: int = 0
     months: int = 0
     license_key: Optional[str] = None

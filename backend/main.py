@@ -19,7 +19,6 @@ from license_service import (
     increment_usage,
     log_request,
     plan_label,
-    provider_for_plan,
     seed_admin_test_key,
     sync_plan_limits,
 )
@@ -151,17 +150,7 @@ def api_generate(req: GenerateRequest):
         raise HTTPException(status_code=403, detail=status.message)
 
     try:
-        forced = provider_for_plan(status.plan)
-        want = forced or (req.provider or "openai")
-        provider, api_key = resolve_provider_key(
-            want,
-            allow_fallback=forced is None,
-        )
-        if forced == "google" and req.source_image_data_url:
-            raise ValueError(
-                "ADMIN-GEMINI는 이미지 업로드 변환을 지원하지 않습니다. "
-                "새로 생성만 사용하거나 ADMIN-TEST(OpenAI)를 이용해 주세요."
-            )
+        provider, api_key = resolve_provider_key(req.provider)
         result = generate_batch(
             provider=provider,
             api_key=api_key,
