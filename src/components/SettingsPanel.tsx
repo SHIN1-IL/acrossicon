@@ -63,13 +63,6 @@ export function SettingsPanel({
     setDraft((prev) => ({ ...prev, fontSize }));
   };
 
-  const licenseHintKey = (() => {
-    const k = draft.licenseKey.trim().toUpperCase();
-    if (k === 'ADMIN-GEMINI') return 'settings.licenseHintAdminGemini' as const;
-    if (k === 'ADMIN-TEST') return 'settings.licenseHintAdminTest' as const;
-    return 'settings.licenseHint' as const;
-  })();
-
   return (
     <div className="fixed inset-0 z-40 flex justify-end bg-black/50 animate-fade-in">
       <button
@@ -164,7 +157,7 @@ export function SettingsPanel({
               className="w-full rounded-lg border border-surface-border bg-surface-overlay px-3 py-2 font-mono text-sm uppercase tracking-wide text-zinc-100 outline-none focus:border-accent-border"
             />
             <p className="text-[11px] leading-relaxed text-zinc-500">
-              {t(locale, licenseHintKey)}
+              {t(locale, 'settings.licenseHint')}
             </p>
           </label>
 
