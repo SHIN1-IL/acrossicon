@@ -109,6 +109,9 @@ def _quota_payload(status):
     payload = status.to_dict()
     if status.plan:
         payload["plan_label"] = plan_label(status.plan)
+        forced = provider_for_plan(status.plan)
+        if forced:
+            payload["generation_provider"] = forced
     return payload
 
 

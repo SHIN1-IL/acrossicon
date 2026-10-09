@@ -68,6 +68,19 @@ def humanize_provider_error(message: str) -> str:
         return SAFETY_VIOLATION_KO
     if "prohibited" in lower and "content" in lower:
         return SAFETY_VIOLATION_KO
+    if "api key not valid" in lower or "invalid api key" in lower:
+        return (
+            "Google/Gemini API 키가 올바르지 않습니다. "
+            "Render의 GEMINI_API_KEY에 Google AI Studio에서 복사한 AIzaSy... 키를 넣었는지 확인해 주세요. "
+            "앱 설정의 ADMIN-GEMINI는 라이선스 키이며 Render API 키와 다릅니다."
+        )
+    if "incorrect api key" in lower or "invalid_api_key" in lower:
+        return (
+            "OpenAI API 키가 올바르지 않습니다. "
+            "Render의 OPENAI_API_KEY를 확인해 주세요."
+        )
+    if "gemini_api_key" in lower or "render의 gemini" in lower:
+        return message
     return message
 
 

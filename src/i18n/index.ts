@@ -164,7 +164,11 @@ const ko: Dict = {
   'settings.licenseKey': '라이선스 키',
   'settings.licenseKeyPlaceholder': 'XXXX-XXXX-XXXX',
   'settings.licenseHint':
-    '운영자가 발급한 키를 입력하세요. 스탠다드 일10/월60 · 프리미엄 일20/월120.',
+    '운영자가 발급한 키를 입력하세요. 스탠다드 일20/월60 · 프리미엄 일30/월120.',
+  'settings.licenseHintAdminTest':
+    'ADMIN-TEST: 서버 OpenAI로 생성합니다. 개인 API 키·제공자 선택은 필요 없습니다.',
+  'settings.licenseHintAdminGemini':
+    'ADMIN-GEMINI: 서버 Google(Imagen)로 생성합니다. Render에 GEMINI_API_KEY(AIzaSy...)만 등록하면 됩니다. 앱에는 이 라이선스 키만 입력하세요.',
   'settings.apiBaseUrl': '라이선스 서버 URL',
   'settings.apiBaseUrlHint':
     '비우면 https://acrossicon.onrender.com 을 사용합니다. 로컬 백엔드면 http://127.0.0.1:8000',
@@ -229,6 +233,10 @@ const ko: Dict = {
   'toast.unknown': '알 수 없는 오류가 발생했습니다.',
   'toast.safetyViolation':
     '안전 가이드라인에 위배되는 단어(성인/민감 콘텐츠)가 포함되어 이미지를 생성할 수 없습니다. 프롬프트를 수정해 주세요.',
+  'toast.invalidApiKey':
+    'API 키가 올바르지 않습니다. Render 환경변수의 키를 확인해 주세요.',
+  'toast.invalidGeminiKey':
+    'Google API 키가 올바르지 않습니다. Render GEMINI_API_KEY에 Google AI Studio에서 복사한 AIzaSy... 전체를 넣었는지 확인하세요. ADMIN-GEMINI는 라이선스 키입니다.',
 };
 
 const en: Dict = {
@@ -388,7 +396,11 @@ const en: Dict = {
   'settings.licenseKey': 'License key',
   'settings.licenseKeyPlaceholder': 'XXXX-XXXX-XXXX',
   'settings.licenseHint':
-    'Enter the key from your operator. Standard 10/day · 60/mo · Premium 20/day · 120/mo.',
+    'Enter the key from your operator. Standard 20/day · 60/mo · Premium 30/day · 120/mo.',
+  'settings.licenseHintAdminTest':
+    'ADMIN-TEST: images use server OpenAI. No personal API key or provider picker needed.',
+  'settings.licenseHintAdminGemini':
+    'ADMIN-GEMINI: images use server Google (Imagen). Set GEMINI_API_KEY (AIzaSy…) on Render; enter only this license key in the app.',
   'settings.apiBaseUrl': 'License server URL',
   'settings.apiBaseUrlHint':
     'Defaults to https://acrossicon.onrender.com. Use http://127.0.0.1:8000 for local backend.',
@@ -456,6 +468,10 @@ const en: Dict = {
   'toast.unknown': 'An unknown error occurred.',
   'toast.safetyViolation':
     'Your prompt includes words that violate safety guidelines (adult/sensitive content), so the image could not be generated. Please edit the prompt and try again.',
+  'toast.invalidApiKey':
+    'The API key is invalid. Check the key in your Render environment variables.',
+  'toast.invalidGeminiKey':
+    'Invalid Google API key. Set GEMINI_API_KEY on Render to the full AIzaSy… key from Google AI Studio. ADMIN-GEMINI is a license key, not an API key.',
 };
 
 const dictionaries: Record<Locale, Dict> = { ko, en };
