@@ -17,12 +17,6 @@ def google_api_key() -> str:
     return _env("GOOGLE_API_KEY") or _env("GEMINI_API_KEY")
 
 
-def looks_like_google_api_key(key: str) -> bool:
-    """Google AI Studio keys: legacy AIzaSy… or newer Auth keys (AQ.…)."""
-    k = (key or "").strip()
-    return k.startswith("AIza") or k.startswith("AQ.")
-
-
 def validate_google_api_key(key: str) -> None:
     """Reject common misconfigurations before calling Google Imagen."""
     k = (key or "").strip()
@@ -31,12 +25,12 @@ def validate_google_api_key(key: str) -> None:
     if k.startswith("sk-"):
         raise ValueError(
             "Render의 GEMINI_API_KEY에 OpenAI 키(sk-...)가 들어 있습니다. "
-            "Google AI Studio에서 복사한 Gemini API 키(AIzaSy… 또는 AQ.…)를 넣어 주세요."
+            "Google AI Studio에서 복사한 AIzaSy... 키를 넣어 주세요."
         )
-    if not looks_like_google_api_key(k):
+    if not k.startswith("AIza"):
         raise ValueError(
             "Render의 GEMINI_API_KEY 형식이 맞지 않습니다. "
-            "Google AI Studio → API 키 → 「복사」로 받은 키 전체(AIzaSy… 또는 AQ.…)를 넣어 주세요. "
+            "Google AI Studio → API 키 → 「복사」로 받은 AIzaSy... 전체 문자열을 넣어 주세요. "
             "라이선스 ADMIN-GEMINI나 프로젝트 ID는 API 키가 아닙니다."
         )
 

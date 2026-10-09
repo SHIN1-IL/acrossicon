@@ -22,7 +22,7 @@ uvicorn main:app --reload --port 8000
 
 - 헬스: http://127.0.0.1:8000/health  
 - 운영 콘솔: http://127.0.0.1:8000/ops/  
-- 테스트 키: `ADMIN-TEST` (OpenAI, 시드됨) · `ADMIN-GEMINI` (Google/Gemini, 시드됨 — Render에 `GEMINI_API_KEY` 또는 `GOOGLE_API_KEY` 필요, AI Studio 키 형식 `AIzaSy…` 또는 `AQ.…`)
+- 테스트 키: `ADMIN-TEST` (OpenAI, 시드됨) · `ADMIN-GEMINI` (Google/Gemini, 시드됨 — Render에 `GEMINI_API_KEY` 또는 `GOOGLE_API_KEY` 필요)
 
 ## Render
 
