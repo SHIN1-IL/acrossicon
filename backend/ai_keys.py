@@ -17,18 +17,22 @@ def google_api_key() -> str:
     return _env("GOOGLE_API_KEY") or _env("GEMINI_API_KEY")
 
 
-def resolve_provider_key(provider: str) -> Tuple[str, str]:
-    """Return (provider, api_key) or raise ValueError."""
+def resolve_provider_key(provider: str, *, allow_fallback: bool = True) -> Tuple[str, str]:
+    """Return (provider, api_key) or raise ValueError.
+
+    When allow_fallback is False (e.g. ADMIN-GEMINI), do not silently switch to OpenAI.
+    """
     p = (provider or "openai").strip().lower()
     if p == "google":
         key = google_api_key()
         if not key:
-            # Fall back to OpenAI if Google is not configured.
-            key = openai_api_key()
-            if key:
-                return "openai", key
+            if allow_fallback:
+                key = openai_api_key()
+                if key:
+                    return "openai", key
             raise ValueError(
-                "서버에 Google/OpenAI API 키가 없습니다. Render Environment에 OPENAI_API_KEY를 설정하세요."
+                "서버에 Gemini/Google API 키가 없습니다. "
+                "Render Environment에 GEMINI_API_KEY 또는 GOOGLE_API_KEY를 설정하세요."
             )
         return "google", key
 

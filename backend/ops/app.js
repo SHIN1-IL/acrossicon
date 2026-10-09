@@ -109,7 +109,8 @@
             <button type="button" data-act="restore" data-key="${key}">복원</button>
             <button type="button" data-act="copy" data-key="${key}">안내</button>`;
     }
-    const isAdminTest = lic.license_key === "ADMIN-TEST";
+    const isProtectedAdmin =
+      lic.license_key === "ADMIN-TEST" || lic.license_key === "ADMIN-GEMINI";
     return `
             <button type="button" data-act="editnote" data-key="${key}">수정</button>
             <button type="button" data-act="savenote" data-key="${key}">저장</button>
@@ -118,7 +119,7 @@
             <button type="button" data-act="suspend" data-key="${key}">정지</button>
             <button type="button" data-act="activate" data-key="${key}">활성</button>
             ${
-              isAdminTest
+              isProtectedAdmin
                 ? ""
                 : `<button type="button" class="btn-danger" data-act="delete" data-key="${key}">삭제</button>`
             }`;
